@@ -1,0 +1,11 @@
+<p>Welcome to Pickles 2.</p>
+
+<?php if(isset($px)){ ?>
+<ul><?php
+$children = $px->site()->get_children();
+foreach($children as $pid){
+    print '<li>'.$px->mk_link($pid).'</li>'."\n";
+}
+
+?></ul>
+<?php } ?>

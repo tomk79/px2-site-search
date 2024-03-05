@@ -1,0 +1,6 @@
+<p>動的な値をコンテンツから出力します。</p>
+<p>パブリッシュの成果物は、実行結果の静的なHTMLファイルです。</p>
+<?php
+$message = 'この段落はPHPコードが動的に生成したものです。';
+echo '<p style="color:#f60;">'.htmlspecialchars($message).'</p>';
+?>

@@ -1,0 +1,8 @@
+"* path","* content","* id","* title","* title_breadcrumb","* title_h1","* title_label","* title_full","* logical_path","* list_flg","* layout","* orderby","* keywords","* description","* category_top_flg","* role","* proc_type"
+"/index.html",,,"HOME",,,,,,"1",,,,,,,
+"/basic/index.html",,,"基本",,,,,,"1",,,,,"1",,
+"/basic/php_api-ajax.html",,,"1. PHPによるAPIにAJAX通信する",,,,,"/basic/index.html","1",,,,,,,
+"/basic/php_page.php{*}","/basic/php_page.php",,"2. PHPで実行する",,,,,"/basic/index.html","1",,,,,,,
+"/basic/php_preview.html",,,"3. プレビュー環境で動的に実行する",,,,,"/basic/index.html","1",,,,,,,
+"/showcase/index.html",,,"ショーケース",,,,,,"1",,,,,"1",,
+"/showcase/extphp/index.html",,,"PHPを拡張子で適用する",,,,,"/showcase/index.html","1",,,,,"1",,

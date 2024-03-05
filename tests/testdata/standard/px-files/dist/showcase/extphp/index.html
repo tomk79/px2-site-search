@@ -1,0 +1,37 @@
+<?php
+chdir(__DIR__);
+
+$tmp_path_autoload = __DIR__;
+while(1){
+    if( is_file( $tmp_path_autoload.'/vendor/autoload.php' ) ){
+        require_once( $tmp_path_autoload.'/vendor/autoload.php' );
+        break;
+    }
+
+    if( $tmp_path_autoload == dirname($tmp_path_autoload) ){
+        break;
+    }
+    $tmp_path_autoload = dirname($tmp_path_autoload);
+    continue;
+}
+unset($tmp_path_autoload);
+
+$paprika = new \picklesFramework2\paprikaFramework\fw\paprika(json_decode('{"file_default_permission":"775","dir_default_permission":"775","filesystem_encoding":"UTF-8","session_name":"PXSID","session_expire":1800,"directory_index":["index.html"],"realpath_controot":"../../","realpath_homedir":"../../../paprika/","path_controot":"/","realpath_files":"./index_files/","realpath_files_cache":"../../caches/c/showcase/extphp/index_files/","href":"/showcase/extphp/","page_info":{"path":"/showcase/extphp/index.html","content":"/showcase/extphp/index.html","id":":auto_page_id.8","title":"PHPを拡張子で適用する","title_breadcrumb":"PHPを拡張子で適用する","title_h1":"PHPを拡張子で適用する","title_label":"PHPを拡張子で適用する","title_full":"PHPを拡張子で適用する | Paprika Framework for Pickles 2","logical_path":"/showcase/index.html","list_flg":"1","layout":"","orderby":"","keywords":"","description":"","category_top_flg":"1","role":"","proc_type":""},"parent":{"title":"ショーケース","title_label":"ショーケース","href":"/showcase/"},"breadcrumb":[{"title":"HOME","title_label":"HOME","href":"/"},{"title":"ショーケース","title_label":"ショーケース","href":"/showcase/"}],"bros":[{"title":"PHPを拡張子で適用する","title_label":"PHPを拡張子で適用する","href":"/showcase/extphp/"}],"children":[]}'), false);
+
+ob_start();
+
+$execute_php_content = function($paprika){
+?>
+<?= 1+23 ?>
+
+これはテストページです。
+<?php
+};
+$execute_php_content($paprika);
+$content = ob_get_clean();
+if(strlen($content)){
+    $paprika->bowl()->put($content);
+}
+echo $paprika->bowl()->bind_template();
+exit;
+?>
