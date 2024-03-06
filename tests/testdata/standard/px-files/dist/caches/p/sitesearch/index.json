@@ -1,0 +1,39 @@
+{
+    "contents": [
+        {
+            "href": "/basic/index.html",
+            "title": "基本",
+            "content": "<p>Paprika によるウェブアプリケーションの実装方針には、3つの種類があります。</p>\n"
+        },
+        {
+            "href": "/basic/php_api-ajax.html",
+            "title": "1. PHPによるAPIにAJAX通信する",
+            "content": "<p>AJAX通信する方法は、最もシンプルで直感的な実装方法です。</p>\n<p>ページの内容を記述するコンテンツファイルとは別に、 <code>*.php</code> 拡張子のAPIプログラムを用意し、これとAJAX通信をして、クライアントサイドJavaScriptで画面の表示を更新する方法です。</p>\n<p>この方法では、 コンテンツのHTMLは静的に出力されます。 <code>*.php</code> のAPIプログラムは、プレビュー環境でもパブリッシュ先でも動的に実行されます。 グローバル空間に <code>$paprika</code> が存在するように環境が整えられます。</p>\n\n<p>次の例は、 API <a href=\"./php_api-ajax_files/apis/sample.php\" target=\"_blank\">sample.php</a> から取得したJSONの内容を表示したものです。</p>\n<script type=\"text/javascript\">\n$(window).on('load', function(e){\n    $.ajax({\n        'url': './php_api-ajax_files/apis/sample.php',\n        'success': function(data, dataType){\n            console.log(data, dataType);\n            $('.cont-sample').append(\"DOCUMENT_ROOT: \"+data._SERVER.DOCUMENT_ROOT);\n        },\n        'error': function(XMLHttpRequest, textStatus, errorThrown){\n            console.error(XMLHttpRequest, textStatus, errorThrown);\n        },\n        'complete': function(XMLHttpRequest, textStatus){\n            console.log(XMLHttpRequest, textStatus);\n        }\n    });\n})\n</script>\n<pre><code class=\"cont-sample\"></code></pre>\n"
+        },
+        {
+            "href": "/basic/php_page.php",
+            "title": "2. PHPで実行する",
+            "content": "{$main}"
+        },
+        {
+            "href": "/basic/php_preview.html",
+            "title": "3. プレビュー環境で動的に実行する",
+            "content": "<p>動的な値をコンテンツから出力します。</p>\n<p>パブリッシュの成果物は、実行結果の静的なHTMLファイルです。</p>\n<p style=\"color:#f60;\">この段落はPHPコードが動的に生成したものです。</p>"
+        },
+        {
+            "href": "/index.html",
+            "title": "HOME",
+            "content": "<p>Welcome to Pickles 2.</p>\r\n\r\n<ul><li><a href=\"/basic/\">基本</a></li>\n<li><a href=\"/showcase/\">ショーケース</a></li>\n</ul>\r\n"
+        },
+        {
+            "href": "/showcase/extphp/index.html",
+            "title": "PHPを拡張子で適用する",
+            "content": "{$main}"
+        },
+        {
+            "href": "/showcase/index.html",
+            "title": "ショーケース",
+            "content": ""
+        }
+    ]
+}

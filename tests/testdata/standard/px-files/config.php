@@ -185,7 +185,7 @@ return call_user_func( function(){
 	 * サイトマップ読み込みの後、コンテンツ実行の前に実行するプラグインを設定します。
 	 */
 	$conf->funcs->before_content = array(
-		// PX=site-search
+		// PX=site_search
 		'sitesearch' => picklesFramework2\px2SiteSearch\register::before_content(),
 
 		// PX=api
@@ -222,7 +222,7 @@ return call_user_func( function(){
 		// Paprika - PHPアプリケーションフレームワーク
 		// 'picklesFramework2\paprikaFramework\main::processor' , // <- *.html でも Paprika の処理を動作させたい場合に有効にする
 
-		// PX=site-search
+		// PX=site_search
 		'sitesearch' => picklesFramework2\px2SiteSearch\register::processor(),
 
 		// ページ内目次を自動生成する
