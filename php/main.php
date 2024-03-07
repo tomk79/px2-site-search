@@ -52,6 +52,8 @@ class main {
 		$path_plugin_files = preg_replace('/^'.preg_quote($this->px->get_path_controot(), '/').'/', '/', $href_plugin_files);
 
 		$this->px->fs()->save_file($realpath_plugin_files.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-        echo $this->px->internal_sub_request($path_plugin_files.'index.json?PX=publish.run&keep_cache=1');
+		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_plugin_files.'assets/');
+
+        echo $this->px->internal_sub_request($path_plugin_files.'?PX=publish.run&keep_cache=1');
     }
 }
