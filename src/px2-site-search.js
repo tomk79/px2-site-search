@@ -1,8 +1,11 @@
 const $ = require('jquery');
+const $script = $('script').last();
+const __dirname = $script.attr('src').replace(/[^\/]+$/, '');
+
 $(window).on('load', function(){
 	let indexData = {};
 	$.ajax({
-		"url": "/caches/p/sitesearch/contents/index.json",
+		"url": `${__dirname}../index.json`,
 		"success": function(data){
 			indexData = data;
 		},
