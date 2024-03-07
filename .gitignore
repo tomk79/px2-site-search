@@ -16,3 +16,8 @@ composer.lock
 # PHP Documentor
 .phpdoc
 phpDocumentor.phar
+
+# node/npm
+/node_modules/
+package-lock.json
+mix-manifest.json
