@@ -46,18 +46,15 @@
 </ul>
 
 <h2>検索</h2>
-<div>
-	<form action="javascript:;" method="get" id="cont-search-form">
-		<input type="search" name="q" value="" class="px2-input" />
-		<button class="px2-btn px2-btn--primary">検索</button>
-	</form>
-</div>
-<div id="cont-search-result">
-</div>
 
 <script src="/caches/p/sitesearch/assets/px2-site-search.js"></script>
 <link rel="stylesheet" href="/caches/p/sitesearch/assets/px2-site-search.css" />
-						</div>
+
+
+<div id="cont-search-result-block"></div>
+<script>
+	px2sitesearch.createSearchForm('#cont-search-result-block');
+</script>						</div>
 						<div class="theme_breadcrumb"><ul><li><span>HOME</span></li></ul></div>
 					</div>
 					<div class="col-sm-3">
