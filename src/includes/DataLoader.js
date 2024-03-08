@@ -1,3 +1,4 @@
+const $ = require('jquery');
 const $script = $('script').last();
 const __dirname = $script.attr('src').replace(/[^\/]+$/, '');
 
