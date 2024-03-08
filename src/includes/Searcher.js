@@ -5,9 +5,10 @@ module.exports = function(){
 	// --------------------------------------
 	// FlexSearch インデックスの作成
 	const index = new FlexSearch.Document({
-		tokenize: "full",
 		cache: true,
-		encoder: "icase",
+		encoder: "extra",
+		tokenize: "full",
+		preset: "match",
 		document: {
 			id: "id",
 			store: ["title", "content"],
@@ -25,11 +26,21 @@ module.exports = function(){
 	}
 
 	this.search = function(query, callback) {
-		const results = index.search(query, {
-			pluck: ["title", "content"],
+		const origResults = index.search(query, {
+			enrich: true,
 			sort: true,
 			bool: "or",
-			enrich: true,
+		});
+		let done = {};
+		let results = [];
+		origResults.forEach((field)=>{
+			field.result.forEach((item) => {
+				if(done[item.id]){
+					return;
+				}
+				done[item.id] = true;
+				results.push(item);
+			});
 		});
 		callback(results);
 	}
