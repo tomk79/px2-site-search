@@ -31,13 +31,15 @@ module.exports = function(){
 	this.createSearchForm = function(targetDiv){
 		const $targetDiv = $(targetDiv);
 
-		let $htmlSearchForm = $(`<div>
-	<form action="javascript:;" method="get" id="px2-site-search__search-form">
-		<input type="search" name="q" value="" class="px2-input" />
-		<button class="px2-btn px2-btn--primary">検索</button>
-	</form>
-</div>
-<div class="px2-site-search__result"></div>`);
+		let $htmlSearchForm = $(
+			`<div>
+				<form action="javascript:;" method="get" id="px2-site-search__search-form">
+					<input type="search" name="q" value="" class="px2-input" />
+					<button class="px2-btn px2-btn--primary">検索</button>
+				</form>
+			</div>
+			<div class="px2-site-search__result"></div>`
+		);
 
 		$targetDiv.append($htmlSearchForm);
 
@@ -68,6 +70,14 @@ module.exports = function(){
 	 * 検索ダイアログを開く
 	 */
 	this.openSearchDialog = function(){
+		if(!window.px2style){
+			console.error('px2style is required.');
+			return;
+		}
+
 		// TODO: 実装する
+		px2style.modal({
+			"title": "Search",
+		});
 	}
 }

@@ -41,6 +41,7 @@
         "pickles2/px2-sitemapexcel": "~2.0",
         "pickles2/px2-paprika": "~0.5",
         "pickles2/px2-publish-ex": "~2.0",
+        "pickles2/px2style": "~3.0",
         "phpunit/phpunit": "~9.5",
 		"vlucas/phpdotenv": "~5.4.0"
     },

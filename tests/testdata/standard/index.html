@@ -10,13 +10,21 @@ foreach($children as $pid){
 ?></ul>
 <?php } ?>
 
-<h2>検索</h2>
 
 <script src="/caches/p/sitesearch/assets/px2-site-search.js"></script>
 <link rel="stylesheet" href="/caches/p/sitesearch/assets/px2-site-search.css" />
 
 
+<h2>検索</h2>
 <div id="cont-search-result-block"></div>
 <script>
 	px2sitesearch.createSearchForm('#cont-search-result-block');
+</script>
+
+<h2>検索ボタン</h2>
+<p><button class="px2-btn px2-btn--primary cont-search-button">検索ダイアログを開く</button></p>
+<script>
+	$('.cont-search-button').on('click', function(){
+		px2sitesearch.openSearchDialog();
+	});
 </script>

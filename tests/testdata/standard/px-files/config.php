@@ -239,7 +239,7 @@ return call_user_func( function(){
 			'cookie_theme_switch'=>'THEME',
 			'path_theme_collection'=>'./px-files/themes/',
 			'attr_bowl_name_by'=>'data-contents-area',
-			'default_theme_id'=>'pickles2'
+			'default_theme_id' => '2024-03-09'
 		]).')',
 
 		// Apache互換のSSIの記述を解決する
@@ -333,11 +333,8 @@ return call_user_func( function(){
 	$conf->plugins->px2dt->guiEngine = 'broccoli-html-editor-php';
 
 	/** broccoliモジュールセットの登録 */
-	$conf->plugins->px2dt->paths_module_template = [
-		"PlainHTMLElements" => "./vendor/pickles2/broccoli-module-plain-html-elements/modules/",
-		"local" => "./px-files/modules/",
-		"FESS" => "./vendor/pickles2/broccoli-module-fess/modules/"
-	];
+	$conf->plugins->px2dt->paths_module_template = [];
+	$conf->plugins->px2dt->path_module_templates_dir = "./px-files/modules/";
 
 	/** コンテンツエリアを識別するセレクタ(複数の要素がマッチしてもよい) */
 	$conf->plugins->px2dt->contents_area_selector = '[data-contents-area]';
