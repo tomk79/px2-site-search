@@ -244,22 +244,24 @@ class createIndex {
 			print '------------'."\n";
 			print $path."\n";
 
-			$device_info = array(
-				'user_agent' => '',
+			$device_info = (object) array(
+				'user_agent' => 'Mozilla/5.0',
 				'paths_target'=>null,
 				'paths_ignore'=>null,
 				'rewrite_direction'=>null,
 			);
 			$path_rewrited = $path;
-
+			$path_ext = strtolower( preg_replace('/^.*?([a-zA-Z0-9\_\-]+)$/', '$1', $path_rewrited??'') );
 			$path_type = $this->px->get_path_type( $path );
-			if( $path_type != 'normal' && $path_type !== false ){
+			if( !preg_match('/^(?:html?|php)$/', $path_ext) ){
+				// HTMLドキュメント以外はスキップ
+				print ' -> Non HTML file.'."\n";
+			}elseif( $path_type != 'normal' && $path_type !== false ){
 				// 物理ファイルではないものはスキップ
 				print ' -> Non file URL.'."\n";
 
 			}elseif( $this->px->fs()->is_dir(dirname($_SERVER['SCRIPT_FILENAME']).$path) ){
 				// ディレクトリを処理
-				$this->px->fs()->mkdir( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited );
 				print ' -> A directory.'."\n";
 
 			}else{
@@ -292,11 +294,13 @@ class createIndex {
 						// pickles execute
 						print $ext.' -> '.$proc_type."\n";
 
-						if( !isset( $device_info->params ) ){
-							$device_info->params = null;
-						}
-
-						$bin = $this->px->internal_sub_request( $this->merge_params($path, $device_info->params), array('output'=>'json', 'user_agent'=>$device_info->user_agent), $return_var );
+						$bin = $this->px->internal_sub_request(
+							$path,
+							array(
+								'output'=>'json',
+								'user_agent'=>$device_info->user_agent,
+							),
+							$return_var);
 						if( !is_object($bin) ){
 							$bin = new \stdClass;
 							$bin->status = 500;
@@ -311,6 +315,7 @@ class createIndex {
 							// $bin->body_base64 = base64_encode($tmp_err_msg);
 							unset($tmp_err_msg);
 						}
+						$bin->status = $bin->status ?? 299;
 						$status_code = $bin->status ?? null;
 						$status_message = $bin->message ?? null;
 						$errors = $bin->errors ?? null;
@@ -330,8 +335,16 @@ class createIndex {
 
 						// コンテンツの書き出し処理
 						// エラーが含まれている場合でも、得られたコンテンツを出力する。
+						$realpath_plugin_files = $this->px->realpath_plugin_private_cache();
+						$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
+						$json = (object) array();
+						$json->href = $path_rewrited;
+						$json->page_info = $this->px->site()->get_page_info($path_rewrited);
+						$json->content = strip_tags(base64_decode( $bin->body_base64 ?? null ));
+						$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 						// $this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) );
 						// $this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
+
 						foreach( $bin->relatedlinks as $link ){
 							$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
 							$link = $this->px->fs()->normalize_path( $link );
@@ -1017,41 +1030,6 @@ class createIndex {
 		}
 
 		return touch( $lockfilepath );
-	}
-
-	/**
-	 * パス文字列に新しいパラメータをマージする
-	 * @param string $path マージ元のパス
-	 * @param array $params マージするパラメータ
-	 * @return string マージ後のパス
-	 */
-	private function merge_params( $path, $params ){
-
-		$query_string = null;
-		if( isset($params) && (is_array($params) || is_object($params)) ){
-			$query_string = http_build_query( $params );
-		}
-		if( !strlen(''.$query_string) ){
-			return $path;
-		}
-
-		$parsed_url_fin = parse_url($path);
-		$path = $this->px->fs()->normalize_path( $parsed_url_fin['path'] );
-
-		// パラメータをパスに付加
-		if( array_key_exists('query', $parsed_url_fin) && strlen(''.$parsed_url_fin['query']) ){
-			$query_string = $parsed_url_fin['query'].'&'.$query_string;
-		}
-		if( strlen(''.$query_string) ){
-			$path .= '?'.$query_string;
-		}
-
-		// ハッシュが付いていた場合は復元する
-		if( array_key_exists('fragment', $parsed_url_fin) && strlen(''.$parsed_url_fin['fragment']) ){
-			$path .= '#'.$parsed_url_fin['fragment'];
-		}
-
-		return $path;
 	}
 
 }
