@@ -15,11 +15,8 @@ class createIndex {
 	/** プラグイン設定 */
 	private $plugin_conf;
 
-	/** 一時パブリッシュディレクトリ管理オブジェクト */
-	private $tmp_publish_dir;
-
 	/** パス設定 */
-	private $path_tmp_publish, $path_publish_dir, $path_controot;
+	private $path_tmp_publish, $path_controot;
 
 	/** ドメイン設定 */
 	private $domain;
@@ -61,13 +58,9 @@ class createIndex {
 
 		$this->px = $px;
 		$this->plugin_conf = $options;
-		$this->tmp_publish_dir = new tmp_publish_dir( $px, $this->plugin_conf );
 
 		$this->path_tmp_publish = $px->fs()->get_realpath( $px->get_realpath_homedir().'_sys/ram/publish/' );
 		$this->path_lockfile = $this->path_tmp_publish.'applock.txt';
-		if( $this->get_path_publish_dir() !== false ){
-			$this->path_publish_dir = $this->get_path_publish_dir();
-		}
 		$this->domain = $px->conf()->domain;
 		$this->path_controot = $px->conf()->path_controot;
 
@@ -153,7 +146,6 @@ class createIndex {
 		print $this->px->pxcmd()->get_cli_header();
 		print 'publish directory(tmp): '.$this->path_tmp_publish."\n";
 		print 'lockfile: '.$this->path_lockfile."\n";
-		print 'publish directory: '.$this->path_publish_dir."\n";
 		print 'domain: '.$this->domain."\n";
 		print 'docroot directory: '.$this->path_controot."\n";
 		print 'ignore: '.join(', ', $this->plugin_conf->paths_ignore)."\n";
@@ -246,7 +238,6 @@ class createIndex {
 		// 標準デバイスを暗黙的に追加する
 		array_unshift($device_list, json_decode(json_encode(array(
 			'user_agent' => '',
-			'path_publish_dir' => $this->path_publish_dir,
 			'paths_target'=>null,
 			'paths_ignore'=>null,
 			'rewrite_direction'=>null,
@@ -263,8 +254,6 @@ class createIndex {
 			print $path."\n";
 
 			foreach($device_list as $device_num => $device_info){
-				$htdocs_sufix = $this->tmp_publish_dir->get_sufix( $device_info->path_publish_dir );
-				if(!$htdocs_sufix){ $htdocs_sufix = '';}
 				$path_rewrited = $path;
 
 				$path_type = $this->px->get_path_type( $path );
@@ -274,7 +263,7 @@ class createIndex {
 	
 				}elseif( $this->px->fs()->is_dir(dirname($_SERVER['SCRIPT_FILENAME']).$path) ){
 					// ディレクトリを処理
-					$this->px->fs()->mkdir( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited );
+					$this->px->fs()->mkdir( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited );
 					print ' -> A directory.'."\n";
 
 				}else{
@@ -289,12 +278,12 @@ class createIndex {
 						case 'pass':
 							// pass
 							print $ext.' -> '.$proc_type."\n";
-							if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
+							if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) ) ){
 								$status_code = 500;
 								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
 								break;
 							}
-							if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
+							if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) ){
 								$status_code = 500;
 								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
 								break;
@@ -345,8 +334,8 @@ class createIndex {
 
 							// コンテンツの書き出し処理
 							// エラーが含まれている場合でも、得られたコンテンツを出力する。
-							$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) );
-							$this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
+							// $this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) );
+							// $this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
 							foreach( $bin->relatedlinks as $link ){
 								$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
 								$link = $this->px->fs()->normalize_path( $link );
@@ -368,13 +357,6 @@ class createIndex {
 							break;
 					}
 
-					// パスの書き換え
-					if( is_file($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) ){
-						$src = $this->px->fs()->read_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited );
-						$this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited, $src );
-					}
-					// / パスの書き換え
-
 					$str_errors = '';
 					if( is_array($errors) && count($errors) ){
 						$str_errors .= count($errors).' errors: ';
@@ -387,25 +369,12 @@ class createIndex {
 						$status_code ,
 						$status_message ,
 						$str_errors,
-						(file_exists($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) ? filesize($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) : false),
+						(file_exists($this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited) ? filesize($this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited) : false),
 						$device_info->user_agent,
 						microtime(true)-$microtime
 					));
 
 				}
-
-				if( !empty( $device_info->path_publish_dir ) ){
-					// パブリッシュ先ディレクトリに都度コピー
-					if( $this->px->fs()->is_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
-						$this->px->fs()->mkdir_r( dirname( $device_info->path_publish_dir.$this->path_controot.$path_rewrited ) );
-						$this->px->fs()->copy(
-							$this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ,
-							$device_info->path_publish_dir.$this->path_controot.$path_rewrited
-						);
-						print ' -> copied to publish dir'."\n";
-					}
-				}
-
 			} // multi device
 
 			unset($this->paths_queue[$path]);
@@ -421,26 +390,6 @@ class createIndex {
 
 		print "\n";
 
-		if( !empty( $this->path_publish_dir ) ){
-			// パブリッシュ先ディレクトリを同期
-			print '============'."\n";
-			print '## Sync to publish directory.'."\n";
-			print "\n";
-			$publish_dir_list = $this->tmp_publish_dir->get_publish_dir_list();
-			foreach($publish_dir_list as $path_publish_dir => $publish_dir_idx){
-				$htdocs_sufix = $publish_dir_idx;
-				if(!$htdocs_sufix){ $htdocs_sufix = '';}
-				set_time_limit(30*60);
-				foreach( $this->paths_region as $path_region ){
-					$this->sync_dir(
-						$this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot ,
-						$path_publish_dir.$this->path_controot ,
-						$path_region
-					);
-				}
-			}
-		}
-		print "\n";
 		print '============'."\n";
 		print '## done.'."\n";
 		print "\n";
@@ -704,74 +653,9 @@ class createIndex {
 		// キャッシュを消去
 		if( !$this->flg_keep_cache ){
 			(new \picklesFramework2\commands\clearcache( $this->px ))->exec();
-		}else{
-			// 一時パブリッシュディレクトリをクリーニング
-			echo '-- cleaning "publish"'."\n";
-			$this->cleanup_tmp_publish_dir( $this->path_tmp_publish );
 		}
 
 		return true;
-	}
-
-	/**
-	 * 一時パブリッシュディレクトリをクリーニング
-	 * @param string $path クリーニング対象のパス
-	 * @param string $localpath $pathの仮想のパス (再帰処理のために使用)
-	 */
-	private function cleanup_tmp_publish_dir( $path, $localpath = null ){
-		$count = 0;
-		$ls = $this->px->fs()->ls($path.$localpath);
-		foreach( $ls as $basename ){
-			if( $localpath.$basename == '.gitkeep' ){
-				continue;
-			}
-			if( $this->px->fs()->is_dir($path.$localpath.$basename) ){
-				$count += $this->cleanup_tmp_publish_dir( $path, $localpath.$basename.DIRECTORY_SEPARATOR );
-
-				$i = 0;
-				print 'rmdir '.$this->px->fs()->get_realpath( $path.$localpath.$basename );
-				while(1){
-					$i ++;
-					if( $this->px->fs()->rmdir($path.$localpath.$basename) ){
-						break;
-					}
-					if($i > 5){
-						print ' [FAILED]';
-						break;
-					}
-					sleep(1);
-				}
-				print "\n";
-				$count ++;
-
-			}else{
-				clearstatcache();
-				if( $this->px->fs()->get_realpath($path.$localpath.$basename) == $this->path_lockfile ){
-					// パブリッシュロックファイルは消さない
-				}else{
-					$i = 0;
-					print 'rm '.$this->px->fs()->get_realpath( $path.$localpath.$basename );
-					while(1){
-						$i ++;
-						if( $this->px->fs()->rm($path.$localpath.$basename) ){
-							break;
-						}
-						if($i > 5){
-							print ' [FAILED]';
-							break;
-						}
-						sleep(1);
-					}
-					print "\n";
-					$count ++;
-				}
-			}
-		}
-
-		if( is_null($localpath) ){
-			$this->px->fs()->save_file( $path.$localpath.'.gitkeep', '' );
-		}
-		return $count;
 	}
 
 	/**
@@ -1041,23 +925,6 @@ class createIndex {
 		return $rtn;
 	}
 
-
-	/**
-	 * パブリッシュ先ディレクトリを取得
-	 */
-	private function get_path_publish_dir(){
-		if( !strlen( $this->px->conf()->path_publish_dir ?? "" ) ){
-			return false;
-		}
-		$tmp_path = $this->px->fs()->get_realpath( $this->px->conf()->path_publish_dir.'/' );
-		if( !$this->px->fs()->is_dir( $tmp_path ) ){
-			return false;
-		}
-		if( !$this->px->fs()->is_writable( $tmp_path ) ){
-			return false;
-		}
-		return $tmp_path;
-	}
 
 	/**
 	 * パブリッシュをロックする。
