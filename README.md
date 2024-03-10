@@ -14,6 +14,10 @@ $ composer require tomk79/px2-site-search
 
 ## PXコマンド - PX Commands
 
+### PX=site_search.create_index
+
+インデックスファイルを生成する。
+
 
 ## 変更履歴 - Change Log
 

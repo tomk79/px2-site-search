@@ -23,7 +23,9 @@ class register {
 		$px->pxcmd()->register('site_search', function($px) use ($conf){
 			$pxcmd = $px->get_px_command();
 			if( ($pxcmd[1] ?? null) == 'create_index' ){
-				echo $px->internal_sub_request('/?PX=publish.run');
+				$createIndex = new createIndex\createIndex($px, $conf);
+				$createIndex->execute();
+				// echo $px->internal_sub_request('/?PX=publish.run');
 				echo $px->internal_sub_request('/?PX=site_search._.integrate_index');
 			}elseif( ($pxcmd[1] ?? null) == '_' ){
 				if( ($pxcmd[2] ?? null) == 'integrate_index' ){
@@ -51,7 +53,7 @@ class register {
 		$json = (object) array();
 		$json->href = $px->req()->get_request_file_path();
 		$json->page_info = $px->site()->get_current_page_info();
-		$json->content = $px->bowl()->get('main');
+		$json->content = strip_tags($px->bowl()->get('main'));
 		$px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 	}
 
