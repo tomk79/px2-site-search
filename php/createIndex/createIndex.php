@@ -15,14 +15,8 @@ class createIndex {
 	/** プラグイン設定 */
 	private $plugin_conf;
 
-	/** パス変換オブジェクト */
-	private $path_rewriter;
-
 	/** 一時パブリッシュディレクトリ管理オブジェクト */
 	private $tmp_publish_dir;
-
-	/** デバイス毎の対象パスを評価するオブジェクト */
-	private $device_target_path;
 
 	/** パス設定 */
 	private $path_tmp_publish, $path_publish_dir, $path_controot;
@@ -64,44 +58,10 @@ class createIndex {
 		if( !isset($options->paths_ignore) || !is_array($options->paths_ignore) ){
 			$options->paths_ignore = array();
 		}
-		if( !isset($options->devices) || !is_array($options->devices) ){
-			$options->devices = array();
-		}
-		foreach( $options->devices as $device ){
-			if( !is_object($device) ){
-				$device = json_decode('{}');
-			}
-			if( !property_exists($device, 'user_agent') ){
-				$device->user_agent = null;
-			}
-			if( !property_exists($device, 'path_publish_dir') ){
-				$device->path_publish_dir = null;
-			}
-			if( !property_exists($device, 'path_rewrite_rule') ){
-				$device->path_rewrite_rule = null;
-			}
-			if( !property_exists($device, 'paths_target') ){
-				$device->paths_target = null;
-			}
-			if( !property_exists($device, 'paths_ignore') ){
-				$device->paths_ignore = null;
-			}
-			if( !property_exists($device, 'rewrite_direction') ){
-				$device->rewrite_direction = null;
-			}
-		}
-		if( !property_exists($options, 'skip_default_device') ){
-			$options->skip_default_device = false;
-		}
-		if( !property_exists($options, 'publish_vendor_dir') ){
-			$options->publish_vendor_dir = false;
-		}
 
 		$this->px = $px;
 		$this->plugin_conf = $options;
-		$this->path_rewriter = new path_rewriter( $px, $this->plugin_conf );
 		$this->tmp_publish_dir = new tmp_publish_dir( $px, $this->plugin_conf );
-		$this->device_target_path = new device_target_path( $px, $this->plugin_conf );
 
 		$this->path_tmp_publish = $px->fs()->get_realpath( $px->get_realpath_homedir().'_sys/ram/publish/' );
 		$this->path_lockfile = $this->path_tmp_publish.'applock.txt';
@@ -200,18 +160,6 @@ class createIndex {
 		print 'region: '.join(', ', $this->paths_region)."\n";
 		print 'ignore (tmp): '.join(', ', $this->paths_ignore)."\n";
 		print 'keep cache: '.($this->flg_keep_cache ? 'true' : 'false')."\n";
-		print 'devices:'."\n";
-		foreach($this->plugin_conf->devices as $key=>$device){
-			print '  - device['.$key.']:'."\n";
-			print '    - user_agent: '.$device->user_agent."\n";
-			print '    - path_publish_dir: '.$device->path_publish_dir."\n";
-			print '    - path_rewrite_rule: '.$device->path_rewrite_rule."\n";
-			print '    - paths_target: '.(is_array($device->paths_target) ? join(', ', $device->paths_target) : '')."\n";
-			print '    - paths_ignore: '.(is_array($device->paths_ignore) ? join(', ', $device->paths_ignore) : '')."\n";
-			print '    - rewrite_direction: '.$device->rewrite_direction."\n";
-		}
-		print 'skip default device: '.($this->plugin_conf->skip_default_device ? 'true' : 'false')."\n";
-		print 'publish vendor directory: '.($this->plugin_conf->publish_vendor_dir ? 'true' : 'false')."\n";
 		print '------------'."\n";
 		flush();
 		return ob_get_clean();
@@ -294,42 +242,15 @@ class createIndex {
 
 		file_put_contents($this->path_tmp_publish.'timelog.txt', 'Started at: '.date('c', $total_time)."\n", FILE_APPEND); // 2020-04-01 @tomk79 記録するようにした。
 
-		$device_list = $this->plugin_conf->devices;
-		foreach($device_list as $device_num => $device_info){
-			$device_list[$device_num]->user_agent = trim($device_info->user_agent).'/PicklesCrawler';
-			if($this->px->fs()->is_dir($device_info->path_publish_dir)){
-				$device_list[$device_num]->path_publish_dir = $this->px->fs()->get_realpath( $device_info->path_publish_dir );
-			}else{
-				$device_list[$device_num]->path_publish_dir = false;
-			}
-			$device_list[$device_num]->path_rewrite_rule = $this->path_rewriter->normalize_callback( $device_list[$device_num]->path_rewrite_rule ?? null );
-		}
-		if( !$this->plugin_conf->skip_default_device ){
-			// 標準デバイスを暗黙的に追加する
-			array_unshift($device_list, json_decode(json_encode(array(
-				'user_agent' => '',
-				'path_publish_dir' => $this->path_publish_dir,
-				'path_rewrite_rule' => $this->path_rewriter->normalize_callback(null),
-				'paths_target'=>null,
-				'paths_ignore'=>null,
-				'rewrite_direction'=>null,
-			))));
-		}
-		// var_dump($device_list);
-
-		if( $this->plugin_conf->publish_vendor_dir ){
-			// --------------------------------------
-			// vendorディレクトリのコピーを作成する
-			if( !$this->is_region_path( '/vendor/' ) ){
-				// vendor が範囲外の場合には、実行しない。
-			}else{
-				print ' Copying vendor directory...'."\n";
-				$vendorDir = new vendor_dir( $this->px, $this->plugin_conf );
-				$vendorDir->copy_vendor_to_publish_dirs( $device_list );
-				print ' Done!'."\n";
-				print "\n";
-			}
-		}
+		$device_list = array();
+		// 標準デバイスを暗黙的に追加する
+		array_unshift($device_list, json_decode(json_encode(array(
+			'user_agent' => '',
+			'path_publish_dir' => $this->path_publish_dir,
+			'paths_target'=>null,
+			'paths_ignore'=>null,
+			'rewrite_direction'=>null,
+		))));
 
 		while(1){
 			set_time_limit(5*60);
@@ -342,17 +263,9 @@ class createIndex {
 			print $path."\n";
 
 			foreach($device_list as $device_num => $device_info){
-				// var_dump($device_info);
 				$htdocs_sufix = $this->tmp_publish_dir->get_sufix( $device_info->path_publish_dir );
 				if(!$htdocs_sufix){ $htdocs_sufix = '';}
-				$path_rewrited = $this->path_rewriter->rewrite($path, $device_info->path_rewrite_rule);
-				$is_device_target_path = $this->device_target_path->is_target_path( $path, $device_info );
-
-				if( !$is_device_target_path ){
-					// デバイス設定で対象外と判定された場合、スキップ
-					print ' -> Skipped.'."\n";
-					continue;
-				}
+				$path_rewrited = $path;
 
 				$path_type = $this->px->get_path_type( $path );
 				if( $path_type != 'normal' && $path_type !== false ){
@@ -458,8 +371,6 @@ class createIndex {
 					// パスの書き換え
 					if( is_file($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) ){
 						$src = $this->px->fs()->read_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited );
-						$path_resolver = new path_resolver( $this->px, $this->plugin_conf, $this->path_rewriter, $device_info, $path, $path_rewrited );
-						$src = $path_resolver->resolve($src);
 						$this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited, $src );
 					}
 					// / パスの書き換え

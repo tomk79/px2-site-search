@@ -37,7 +37,7 @@
  * @package PlaceLocalInclude
  * @subpackage simple_html_dom
  */
-namespace picklesFramework2\px2SiteSearch\createIndex;
+namespace picklesFramework2\px2SiteSearch;
 
 /**
  * All of the Defines for the classes below.
