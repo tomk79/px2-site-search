@@ -15,6 +15,15 @@ class createIndex {
 	/** プラグイン設定 */
 	private $plugin_conf;
 
+	/** パス変換オブジェクト */
+	private $path_rewriter;
+
+	/** 一時パブリッシュディレクトリ管理オブジェクト */
+	private $tmp_publish_dir;
+
+	/** デバイス毎の対象パスを評価するオブジェクト */
+	private $device_target_path;
+
 	/** パス設定 */
 	private $path_tmp_publish, $path_controot;
 
@@ -55,12 +64,47 @@ class createIndex {
 		if( !isset($options->paths_ignore) || !is_array($options->paths_ignore) ){
 			$options->paths_ignore = array();
 		}
+		if( !isset($options->devices) || !is_array($options->devices) ){
+			$options->devices = array();
+		}
+		foreach( $options->devices as $device ){
+			if( !is_object($device) ){
+				$device = json_decode('{}');
+			}
+			if( !property_exists($device, 'user_agent') ){
+				$device->user_agent = null;
+			}
+			if( !property_exists($device, 'path_publish_dir') ){
+				$device->path_publish_dir = null;
+			}
+			if( !property_exists($device, 'path_rewrite_rule') ){
+				$device->path_rewrite_rule = null;
+			}
+			if( !property_exists($device, 'paths_target') ){
+				$device->paths_target = null;
+			}
+			if( !property_exists($device, 'paths_ignore') ){
+				$device->paths_ignore = null;
+			}
+			if( !property_exists($device, 'rewrite_direction') ){
+				$device->rewrite_direction = null;
+			}
+		}
+		if( !property_exists($options, 'skip_default_device') ){
+			$options->skip_default_device = false;
+		}
 
 		$this->px = $px;
 		$this->plugin_conf = $options;
+		$this->path_rewriter = new path_rewriter( $px, $this->plugin_conf );
+		$this->tmp_publish_dir = new tmp_publish_dir( $px, $this->plugin_conf );
+		$this->device_target_path = new device_target_path( $px, $this->plugin_conf );
 
 		$this->path_tmp_publish = $px->fs()->get_realpath( $px->get_realpath_homedir().'_sys/ram/publish/' );
 		$this->path_lockfile = $this->path_tmp_publish.'applock.txt';
+	if( $this->get_path_publish_dir() !== false ){
+			$this->path_publish_dir = $this->get_path_publish_dir();
+		}
 		$this->domain = $px->conf()->domain;
 		$this->path_controot = $px->conf()->path_controot;
 
@@ -146,12 +190,25 @@ class createIndex {
 		print $this->px->pxcmd()->get_cli_header();
 		print 'publish directory(tmp): '.$this->path_tmp_publish."\n";
 		print 'lockfile: '.$this->path_lockfile."\n";
+		print 'publish directory: '.$this->path_publish_dir."\n";
 		print 'domain: '.$this->domain."\n";
 		print 'docroot directory: '.$this->path_controot."\n";
 		print 'ignore: '.join(', ', $this->plugin_conf->paths_ignore)."\n";
 		print 'region: '.join(', ', $this->paths_region)."\n";
 		print 'ignore (tmp): '.join(', ', $this->paths_ignore)."\n";
 		print 'keep cache: '.($this->flg_keep_cache ? 'true' : 'false')."\n";
+		print 'devices:'."\n";
+		foreach($this->plugin_conf->devices as $key=>$device){
+			print '  - device['.$key.']:'."\n";
+			print '    - user_agent: '.$device->user_agent."\n";
+			print '    - path_publish_dir: '.$device->path_publish_dir."\n";
+			print '    - path_rewrite_rule: '.$device->path_rewrite_rule."\n";
+			print '    - paths_target: '.(is_array($device->paths_target) ? join(', ', $device->paths_target) : '')."\n";
+			print '    - paths_ignore: '.(is_array($device->paths_ignore) ? join(', ', $device->paths_ignore) : '')."\n";
+			print '    - rewrite_direction: '.$device->rewrite_direction."\n";
+		}
+		print 'skip default device: '.($this->plugin_conf->skip_default_device ? 'true' : 'false')."\n";
+		print 'publish vendor directory: '.($this->plugin_conf->publish_vendor_dir ? 'true' : 'false')."\n";
 		print '------------'."\n";
 		flush();
 		return ob_get_clean();
@@ -234,6 +291,42 @@ class createIndex {
 
 		file_put_contents($this->path_tmp_publish.'timelog.txt', 'Started at: '.date('c', $total_time)."\n", FILE_APPEND); // 2020-04-01 @tomk79 記録するようにした。
 
+		$device_list = $this->plugin_conf->devices;
+		foreach($device_list as $device_num => $device_info){
+			$device_list[$device_num]->user_agent = trim($device_info->user_agent).'/PicklesCrawler';
+			if($this->px->fs()->is_dir($device_info->path_publish_dir)){
+				$device_list[$device_num]->path_publish_dir = $this->px->fs()->get_realpath( $device_info->path_publish_dir );
+			}else{
+				$device_list[$device_num]->path_publish_dir = false;
+			}
+			$device_list[$device_num]->path_rewrite_rule = $this->path_rewriter->normalize_callback( $device_list[$device_num]->path_rewrite_rule ?? null );
+		}
+		if( !$this->plugin_conf->skip_default_device ){
+			// 標準デバイスを暗黙的に追加する
+			array_unshift($device_list, json_decode(json_encode(array(
+				'user_agent' => '',
+				'path_publish_dir' => $this->path_publish_dir,
+				'path_rewrite_rule' => $this->path_rewriter->normalize_callback(null),
+				'paths_target'=>null,
+				'paths_ignore'=>null,
+				'rewrite_direction'=>null,
+			))));
+		}
+
+		if( $this->plugin_conf->publish_vendor_dir ){
+			// --------------------------------------
+			// vendorディレクトリのコピーを作成する
+			if( !$this->is_region_path( '/vendor/' ) ){
+				// vendor が範囲外の場合には、実行しない。
+			}else{
+				print ' Copying vendor directory...'."\n";
+				$vendorDir = new vendor_dir( $this->px, $this->plugin_conf );
+				$vendorDir->copy_vendor_to_publish_dirs( $device_list );
+				print ' Done!'."\n";
+				print "\n";
+			}
+		}
+
 		while(1){
 			set_time_limit(5*60);
 			flush();
@@ -244,146 +337,154 @@ class createIndex {
 			print '------------'."\n";
 			print $path."\n";
 
-			$device_info = (object) array(
-				'user_agent' => 'Mozilla/5.0',
-				'paths_target'=>null,
-				'paths_ignore'=>null,
-				'rewrite_direction'=>null,
-			);
-			$path_rewrited = $path;
-			$path_ext = strtolower( preg_replace('/^.*?([a-zA-Z0-9\_\-]+)$/', '$1', $path_rewrited??'') );
-			$path_type = $this->px->get_path_type( $path );
-			if( !preg_match('/^(?:html?|php)$/', $path_ext) ){
-				// HTMLドキュメント以外はスキップ
-				print ' -> Non HTML file.'."\n";
-			}elseif( $path_type != 'normal' && $path_type !== false ){
-				// 物理ファイルではないものはスキップ
-				print ' -> Non file URL.'."\n";
+			foreach($device_list as $device_num => $device_info){
+				$htdocs_sufix = $this->tmp_publish_dir->get_sufix( $device_info->path_publish_dir );
+				if(!$htdocs_sufix){ $htdocs_sufix = '';}
+				$path_rewrited = $this->path_rewriter->rewrite($path, $device_info->path_rewrite_rule);
+				$is_device_target_path = $this->device_target_path->is_target_path( $path, $device_info );
 
-			}elseif( $this->px->fs()->is_dir(dirname($_SERVER['SCRIPT_FILENAME']).$path) ){
-				// ディレクトリを処理
-				print ' -> A directory.'."\n";
+				if( !$is_device_target_path ){
+					// デバイス設定で対象外と判定された場合、スキップ
+					print ' -> Skipped.'."\n";
+					continue;
+				}
 
-			}else{
-				// ファイルを処理
-				$ext = strtolower( pathinfo( $path , PATHINFO_EXTENSION ) );
-				$proc_type = $this->px->get_path_proc_type( $path );
-				$status_code = null;
-				$status_message = null;
-				$errors = array();
-				$microtime = microtime(true);
-				switch( $proc_type ){
-					case 'pass':
-						// pass
-						print $ext.' -> '.$proc_type."\n";
-						if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) ) ){
-							$status_code = 500;
-							$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
+				$path_type = $this->px->get_path_type( $path );
+				if( $path_type != 'normal' && $path_type !== false ){
+					// 物理ファイルではないものはスキップ
+					print ' -> Non file URL.'."\n";
+
+				}elseif( $this->px->fs()->is_dir(dirname($_SERVER['SCRIPT_FILENAME']).$path) ){
+					// ディレクトリを処理
+					$this->px->fs()->mkdir( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited );
+					print ' -> A directory.'."\n";
+
+				}else{
+					// ファイルを処理
+					$ext = strtolower( pathinfo( $path , PATHINFO_EXTENSION ) );
+					$proc_type = $this->px->get_path_proc_type( $path );
+					$status_code = null;
+					$status_message = null;
+					$errors = array();
+					$microtime = microtime(true);
+					switch( $proc_type ){
+						case 'pass':
+							// pass
+							print $ext.' -> '.$proc_type."\n";
+							if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
+								$status_code = 500;
+								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
+								break;
+							}
+							if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
+								$status_code = 500;
+								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
+								break;
+							}
+							$status_code = 200;
 							break;
-						}
-						if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) ){
-							$status_code = 500;
-							$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
-							break;
-						}
-						$status_code = 200;
-						break;
 
-					case 'direct':
-					default:
-						// pickles execute
-						print $ext.' -> '.$proc_type."\n";
+						case 'direct':
+						default:
+							// pickles execute
+							print $ext.' -> '.$proc_type."\n";
 
-						$bin = $this->px->internal_sub_request(
-							$path,
-							array(
-								'output'=>'json',
-								'user_agent'=>$device_info->user_agent,
-							),
-							$return_var);
-						if( !is_object($bin) ){
-							$bin = new \stdClass;
-							$bin->status = 500;
-							$tmp_err_msg = 'Unknown server error';
-							$tmp_err_msg .= "\n".'PHP returned status code "'.$return_var.'" on exit. There is a possibility of "Parse Error" or "Fatal Error" was occured.';
-							$tmp_err_msg .= "\n".'Hint: Normally, "Pickles 2" content files are parsed as PHP scripts. If you are using "<'.'?", "<'.'?php", "<'.'%", or "<'.'?=" unintentionally in contents, might be the cause.';
-							$bin->message = $tmp_err_msg;
-							$bin->errors = array();
-							// $bin->errors = array($tmp_err_msg);
-							$bin->relatedlinks = array();
-							$bin->body_base64 = base64_encode('');
-							// $bin->body_base64 = base64_encode($tmp_err_msg);
-							unset($tmp_err_msg);
-						}
-						$bin->status = $bin->status ?? 299;
-						$status_code = $bin->status ?? null;
-						$status_message = $bin->message ?? null;
-						$errors = $bin->errors ?? null;
-						if( $bin->status >= 500 ){
-							$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
-						}elseif( $bin->status >= 400 ){
-							$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
-						}elseif( $bin->status >= 300 ){
-							$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
-						}elseif( $bin->status >= 200 ){
-							// 200 番台は正常
-						}elseif( $bin->status >= 100 ){
-							$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
-						}else{
-							$this->alert_log(array( @date('c'), $path, 'Unknown status code.' ));
-						}
+							if( !isset( $device_info->params ) ){
+								$device_info->params = null;
+							}
 
-						// コンテンツの書き出し処理
-						// エラーが含まれている場合でも、得られたコンテンツを出力する。
-						$realpath_plugin_files = $this->px->realpath_plugin_private_cache();
-						$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
-						$json = (object) array();
-						$json->href = $path_rewrited;
-						$json->page_info = $this->px->site()->get_page_info($path_rewrited);
-						$json->content = strip_tags(base64_decode( $bin->body_base64 ?? null ));
-						$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-						// $this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited ) );
-						// $this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
-
-						foreach( $bin->relatedlinks as $link ){
-							$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
-							$link = $this->px->fs()->normalize_path( $link );
-							$tmp_link = preg_replace( '/^'.preg_quote($this->px->get_path_controot(), '/').'/s', '/', ''.$link );
-							if( $this->px->fs()->is_dir( $this->px->get_realpath_docroot().'/'.$link ) ){
-								$this->make_list_by_dir_scan( $tmp_link.'/' );
+							$bin = $this->px->internal_sub_request(
+								$this->merge_params($path, $device_info->params),
+								array(
+									'output'=>'json',
+									'user_agent'=>$device_info->user_agent,
+								),
+								$return_var);
+							if( !is_object($bin) ){
+								$bin = new \stdClass;
+								$bin->status = 500;
+								$tmp_err_msg = 'Unknown server error';
+								$tmp_err_msg .= "\n".'PHP returned status code "'.$return_var.'" on exit. There is a possibility of "Parse Error" or "Fatal Error" was occured.';
+								$tmp_err_msg .= "\n".'Hint: Normally, "Pickles 2" content files are parsed as PHP scripts. If you are using "<'.'?", "<'.'?php", "<'.'%", or "<'.'?=" unintentionally in contents, might be the cause.';
+								$bin->message = $tmp_err_msg;
+								$bin->errors = array();
+								// $bin->errors = array($tmp_err_msg);
+								$bin->relatedlinks = array();
+								$bin->body_base64 = base64_encode('');
+								// $bin->body_base64 = base64_encode($tmp_err_msg);
+								unset($tmp_err_msg);
+							}
+							$bin->status = $bin->status ?? 200;
+							$status_code = $bin->status ?? null;
+							$status_message = $bin->message ?? null;
+							$errors = $bin->errors ?? null;
+							if( $bin->status >= 500 ){
+								$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
+							}elseif( $bin->status >= 400 ){
+								$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
+							}elseif( $bin->status >= 300 ){
+								$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
+							}elseif( $bin->status >= 200 ){
+								// 200 番台は正常
+							}elseif( $bin->status >= 100 ){
+								$this->alert_log(array( @date('c'), $path, 'status: '.$bin->status.' '.$bin->message ));
 							}else{
-								$this->add_queue( $tmp_link );
+								$this->alert_log(array( @date('c'), $path, 'Unknown status code.' ));
 							}
-						}
 
-						// エラーメッセージを alert_log に追記
-						if( is_array( $bin->errors ) && count( $bin->errors ) ){
-							foreach( $bin->errors as $tmp_error_row ){
-								$this->alert_log(array( @date('c'), $path, $tmp_error_row ));
+							// コンテンツの書き出し処理
+							// エラーが含まれている場合でも、得られたコンテンツを出力する。
+							$realpath_plugin_files = $this->px->realpath_plugin_private_cache();
+							$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
+							$json = (object) array();
+							$json->href = $path_rewrited;
+							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
+							$json->content = strip_tags(base64_decode( $bin->body_base64 ?? null ));
+							$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+							// $this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) );
+							// $this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
+
+							foreach( $bin->relatedlinks as $link ){
+								$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
+								$link = $this->px->fs()->normalize_path( $link );
+								$tmp_link = preg_replace( '/^'.preg_quote($this->px->get_path_controot(), '/').'/s', '/', ''.$link );
+								if( $this->px->fs()->is_dir( $this->px->get_realpath_docroot().'/'.$link ) ){
+									$this->make_list_by_dir_scan( $tmp_link.'/' );
+								}else{
+									$this->add_queue( $tmp_link );
+								}
 							}
-						}
 
-						break;
+							// エラーメッセージを alert_log に追記
+							if( is_array( $bin->errors ) && count( $bin->errors ) ){
+								foreach( $bin->errors as $tmp_error_row ){
+									$this->alert_log(array( @date('c'), $path, $tmp_error_row ));
+								}
+							}
+
+							break;
+					}
+
+					$str_errors = '';
+					if( is_array($errors) && count($errors) ){
+						$str_errors .= count($errors).' errors: ';
+						$str_errors .= implode(', ', $errors).';';
+					}
+					$this->log(array(
+						@date('c') ,
+						$path ,
+						$proc_type ,
+						$status_code ,
+						$status_message ,
+						$str_errors,
+						(file_exists($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) ? filesize($this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited) : false),
+						$device_info->user_agent,
+						microtime(true)-$microtime
+					));
+
 				}
 
-				$str_errors = '';
-				if( is_array($errors) && count($errors) ){
-					$str_errors .= count($errors).' errors: ';
-					$str_errors .= implode(', ', $errors).';';
-				}
-				$this->log(array(
-					@date('c') ,
-					$path ,
-					$proc_type ,
-					$status_code ,
-					$status_message ,
-					$str_errors,
-					(file_exists($this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited) ? filesize($this->path_tmp_publish.'/htdocs'.$this->path_controot.$path_rewrited) : false),
-					$device_info->user_agent,
-					microtime(true)-$microtime
-				));
-
-			}
+			} // multi device
 
 			unset($this->paths_queue[$path]);
 			$this->paths_done[$path] = true;
@@ -935,6 +1036,23 @@ class createIndex {
 
 
 	/**
+	 * パブリッシュ先ディレクトリを取得
+	 */
+	private function get_path_publish_dir(){
+		if( !strlen( $this->px->conf()->path_publish_dir ?? "" ) ){
+			return false;
+		}
+		$tmp_path = $this->px->fs()->get_realpath( $this->px->conf()->path_publish_dir.'/' );
+		if( !$this->px->fs()->is_dir( $tmp_path ) ){
+			return false;
+		}
+		if( !$this->px->fs()->is_writable( $tmp_path ) ){
+			return false;
+		}
+		return $tmp_path;
+	}
+
+	/**
 	 * パブリッシュをロックする。
 	 *
 	 * @return bool ロック成功時に `true`、失敗時に `false` を返します。
@@ -1030,6 +1148,41 @@ class createIndex {
 		}
 
 		return touch( $lockfilepath );
+	}
+
+	/**
+	 * パス文字列に新しいパラメータをマージする
+	 * @param string $path マージ元のパス
+	 * @param array $params マージするパラメータ
+	 * @return string マージ後のパス
+	 */
+	private function merge_params( $path, $params ){
+
+		$query_string = null;
+		if( isset($params) && (is_array($params) || is_object($params)) ){
+			$query_string = http_build_query( $params );
+		}
+		if( !strlen(''.$query_string) ){
+			return $path;
+		}
+
+		$parsed_url_fin = parse_url($path);
+		$path = $this->px->fs()->normalize_path( $parsed_url_fin['path'] );
+
+		// パラメータをパスに付加
+		if( array_key_exists('query', $parsed_url_fin) && strlen(''.$parsed_url_fin['query']) ){
+			$query_string = $parsed_url_fin['query'].'&'.$query_string;
+		}
+		if( strlen(''.$query_string) ){
+			$path .= '?'.$query_string;
+		}
+
+		// ハッシュが付いていた場合は復元する
+		if( array_key_exists('fragment', $parsed_url_fin) && strlen(''.$parsed_url_fin['fragment']) ){
+			$path .= '#'.$parsed_url_fin['fragment'];
+		}
+
+		return $path;
 	}
 
 }
