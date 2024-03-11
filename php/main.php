@@ -41,19 +41,18 @@ class main {
         foreach($json_file_list as $json_file){
             $json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
             array_push($integrated->contents, (object) array(
-                "href" => $json->href,
+                "href" => $json->href ?? null,
                 "title" => $json->page_info->title ?? '',
-                "content" => $json->content,
+                "content" => $json->content ?? '',
             ));
         }
 
-		$realpath_plugin_files = $this->px->realpath_plugin_files();
-		$href_plugin_files = $this->px->path_plugin_files();
-		$path_plugin_files = preg_replace('/^'.preg_quote($this->px->get_path_controot(), '/').'/', '/', $href_plugin_files);
+		$path_index_data_dir = '/common/site_search_index/'; // TODO: 設定で変更できるようにする
+		$realpath_controot = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_realpath_docroot().$this->px->get_path_controot() ) );
+		$realpath_public_base = $realpath_controot.$path_index_data_dir.'/';
 
-		$this->px->fs()->save_file($realpath_plugin_files.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_plugin_files.'assets/');
-
-        echo $this->px->internal_sub_request($path_plugin_files.'?PX=publish.run&keep_cache=1');
+		$this->px->fs()->mkdir_r($realpath_public_base);
+		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_public_base.'assets/');
     }
 }
