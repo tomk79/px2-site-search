@@ -3,12 +3,16 @@
  * px2-site-search
  */
 namespace picklesFramework2\px2SiteSearch\createIndex;
+use picklesFramework2\px2SiteSearch\plugins;
 use picklesFramework2\px2SiteSearch\main;
 
 /**
  * PX Commands "site_search.create_index"
  */
 class createIndex {
+
+	/** mainオブジェクト */
+	private $main;
 
 	/** Picklesオブジェクト */
 	private $px;
@@ -54,11 +58,20 @@ class createIndex {
 
 	/**
 	 * constructor
-	 * @param object $px Picklesオブジェクト
-	 * @param object $options プラグイン設定
+	 * @param object $main mainオブジェクト
 	 */
-	public function __construct( $px, $options ){
+	public function __construct( $main ){
+		$this->main = $main;
+		$this->px = $main->px();
+
 		// プラグイン設定の初期化
+		// NOTE: ※ここで取り扱うのは、パブリッシュプラグインのオプション
+		$plugins = new plugins($this->px, $this);
+		$options = $plugins->get_plugin_options('\tomk79\pickles2\publishEx\publish::register___', 'before_content');
+		if( !$options ){
+			$options = $plugins->get_plugin_options('\picklesFramework2\commands\publish::register', 'before_content');
+		}
+
 		if( !is_object($options) ){
 			$options = json_decode('{}');
 		}
@@ -95,19 +108,18 @@ class createIndex {
 			$options->skip_default_device = false;
 		}
 
-		$this->px = $px;
 		$this->plugin_conf = $options;
-		$this->path_rewriter = new path_rewriter( $px, $this->plugin_conf );
-		$this->tmp_publish_dir = new tmp_publish_dir( $px, $this->plugin_conf );
-		$this->device_target_path = new device_target_path( $px, $this->plugin_conf );
+		$this->path_rewriter = new path_rewriter( $this->px, $this->plugin_conf );
+		$this->tmp_publish_dir = new tmp_publish_dir( $this->px, $this->plugin_conf );
+		$this->device_target_path = new device_target_path( $this->px, $this->plugin_conf );
 
-		$this->path_tmp_publish = $px->fs()->get_realpath( $px->get_realpath_homedir().'_sys/ram/publish/' );
+		$this->path_tmp_publish = $this->px->fs()->get_realpath( $this->px->get_realpath_homedir().'_sys/ram/publish/' );
 		$this->path_lockfile = $this->path_tmp_publish.'applock.txt';
 	if( $this->get_path_publish_dir() !== false ){
 			$this->path_publish_dir = $this->get_path_publish_dir();
 		}
-		$this->domain = $px->conf()->domain;
-		$this->path_controot = $px->conf()->path_controot;
+		$this->domain = $this->px->conf()->domain;
+		$this->path_controot = $this->px->conf()->path_controot;
 
 		// Extensionをマッチさせる正規表現
 		$process = array_keys( get_object_vars( $this->px->conf()->funcs->processor ) );
@@ -360,6 +372,7 @@ class createIndex {
 						case 'pass':
 							// pass
 							print $ext.' -> '.$proc_type."\n";
+							// TODO: pass の場合のインデックス作成を実装する
 							// if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
 							// 	$status_code = 500;
 							// 	$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
@@ -488,9 +501,7 @@ class createIndex {
 
 		print '============'."\n";
 		print '## Create index file.'."\n";
-
-		$main = new main($this->px, $this->plugin_conf);
-		$main->integrate_index();
+		$this->main->integrate_index();
 
 		print "\n";
 

@@ -29,6 +29,22 @@ class main {
 		$this->plugin_conf = $plugin_conf;
 	}
 
+	public function px(){
+		return $this->px;
+	}
+
+	public function plugin_conf(){
+		return $this->plugin_conf;
+	}
+
+	/**
+	 * インデックスファイルを生成する
+	 */
+	public function createIndex(){
+		$createIndex = new createIndex\createIndex($this);
+		return $createIndex->execute();
+	}
+
     /**
      * インデックスを統合する
      */
@@ -55,4 +71,5 @@ class main {
 		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_public_base.'assets/');
     }
+
 }
