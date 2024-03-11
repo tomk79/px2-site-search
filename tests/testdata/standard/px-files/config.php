@@ -186,7 +186,7 @@ return call_user_func( function(){
 	 */
 	$conf->funcs->before_content = array(
 		// PX=site_search
-		'sitesearch' => picklesFramework2\px2SiteSearch\register::before_content(),
+		picklesFramework2\px2SiteSearch\register::before_content(),
 
 		// PX=api
 		picklesFramework2\commands\api::register(),
@@ -219,11 +219,6 @@ return call_user_func( function(){
 	$conf->funcs->processor = new stdClass;
 
 	$conf->funcs->processor->html = array(
-		// Paprika - PHPアプリケーションフレームワーク
-		// 'picklesFramework2\paprikaFramework\main::processor' , // <- *.html でも Paprika の処理を動作させたい場合に有効にする
-
-		// PX=site_search
-		'sitesearch' => picklesFramework2\px2SiteSearch\register::processor(),
 
 		// ページ内目次を自動生成する
 		picklesFramework2\processors\autoindex\autoindex::exec(),
