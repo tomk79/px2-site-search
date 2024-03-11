@@ -3,6 +3,7 @@
  * px2-site-search
  */
 namespace picklesFramework2\px2SiteSearch\createIndex;
+use picklesFramework2\px2SiteSearch\main;
 
 /**
  * PX Commands "site_search.create_index"
@@ -25,7 +26,7 @@ class createIndex {
 	private $device_target_path;
 
 	/** パス設定 */
-	private $path_tmp_publish, $path_controot;
+	private $path_tmp_publish, $path_publish_dir, $path_controot;
 
 	/** ドメイン設定 */
 	private $domain;
@@ -190,7 +191,6 @@ class createIndex {
 		print $this->px->pxcmd()->get_cli_header();
 		print 'publish directory(tmp): '.$this->path_tmp_publish."\n";
 		print 'lockfile: '.$this->path_lockfile."\n";
-		print 'publish directory: '.$this->path_publish_dir."\n";
 		print 'domain: '.$this->domain."\n";
 		print 'docroot directory: '.$this->path_controot."\n";
 		print 'ignore: '.join(', ', $this->plugin_conf->paths_ignore)."\n";
@@ -201,14 +201,12 @@ class createIndex {
 		foreach($this->plugin_conf->devices as $key=>$device){
 			print '  - device['.$key.']:'."\n";
 			print '    - user_agent: '.$device->user_agent."\n";
-			print '    - path_publish_dir: '.$device->path_publish_dir."\n";
 			print '    - path_rewrite_rule: '.$device->path_rewrite_rule."\n";
 			print '    - paths_target: '.(is_array($device->paths_target) ? join(', ', $device->paths_target) : '')."\n";
 			print '    - paths_ignore: '.(is_array($device->paths_ignore) ? join(', ', $device->paths_ignore) : '')."\n";
 			print '    - rewrite_direction: '.$device->rewrite_direction."\n";
 		}
 		print 'skip default device: '.($this->plugin_conf->skip_default_device ? 'true' : 'false')."\n";
-		print 'publish vendor directory: '.($this->plugin_conf->publish_vendor_dir ? 'true' : 'false')."\n";
 		print '------------'."\n";
 		flush();
 		return ob_get_clean();
@@ -313,20 +311,6 @@ class createIndex {
 			))));
 		}
 
-		if( $this->plugin_conf->publish_vendor_dir ){
-			// --------------------------------------
-			// vendorディレクトリのコピーを作成する
-			if( !$this->is_region_path( '/vendor/' ) ){
-				// vendor が範囲外の場合には、実行しない。
-			}else{
-				print ' Copying vendor directory...'."\n";
-				$vendorDir = new vendor_dir( $this->px, $this->plugin_conf );
-				$vendorDir->copy_vendor_to_publish_dirs( $device_list );
-				print ' Done!'."\n";
-				print "\n";
-			}
-		}
-
 		while(1){
 			set_time_limit(5*60);
 			flush();
@@ -350,7 +334,12 @@ class createIndex {
 				}
 
 				$path_type = $this->px->get_path_type( $path );
-				if( $path_type != 'normal' && $path_type !== false ){
+				$path_ext = strtolower( preg_replace('/^.*?([a-zA-Z0-9\_\-]+)$/', '$1', $path_rewrited??'') );
+				if( !preg_match('/^(?:html?|php)$/', $path_ext) ){
+					// HTMLドキュメント以外はスキップ
+					print ' -> Non HTML file.'."\n";
+
+				}elseif( $path_type != 'normal' && $path_type !== false ){
 					// 物理ファイルではないものはスキップ
 					print ' -> Non file URL.'."\n";
 
@@ -371,16 +360,16 @@ class createIndex {
 						case 'pass':
 							// pass
 							print $ext.' -> '.$proc_type."\n";
-							if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
-								$status_code = 500;
-								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
-								break;
-							}
-							if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
-								$status_code = 500;
-								$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
-								break;
-							}
+							// if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
+							// 	$status_code = 500;
+							// 	$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
+							// 	break;
+							// }
+							// if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
+							// 	$status_code = 500;
+							// 	$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
+							// 	break;
+							// }
 							$status_code = 200;
 							break;
 
@@ -497,6 +486,12 @@ class createIndex {
 			}
 		}
 
+		print '============'."\n";
+		print '## Create index file.'."\n";
+
+		$main = new main($this->px, $this->plugin_conf);
+		$main->integrate_index();
+
 		print "\n";
 
 		print '============'."\n";
@@ -544,163 +539,6 @@ class createIndex {
 
 		print $this->cli_footer();
 		exit;
-	}
-
-	/**
-	 * ディレクトリを同期する。
-	 *
-	 * @param string $path_sync_from 同期元のルートディレクトリ
-	 * @param string $path_sync_to 同期先のルートディレクトリ
-	 * @param string $path_region ルート以下のパス
-	 * @return bool 常に `true` を返します。
-	 */
-	private function sync_dir( $path_sync_from , $path_sync_to, $path_region ){
-		print 'Copying files and directories...';
-		$this->sync_dir_copy_r( $path_sync_from , $path_sync_to, $path_region );
-		print "\n";
-		print 'Deleting removed files and directories...';
-		$this->sync_dir_compare_and_cleanup( $path_sync_to , $path_sync_from, $path_region );
-		print "\n";
-		return true;
-	}
-
-	/**
-	 * ディレクトリを複製する(下層ディレクトリも全てコピー)
-	 *
-	 * ただし、ignore指定されているパスに対しては操作を行わない。
-	 *
-	 * @param string $from コピー元ファイルのパス
-	 * @param string $to コピー先のパス
-	 * @param string $path_region ルート以下のパス
-	 * @param int $perm 保存するファイルに与えるパーミッション
-	 * @return bool 成功時に `true`、失敗時に `false` を返します。
-	 */
-	private function sync_dir_copy_r( $from, $to, $path_region, $perm = null ){
-		static $count = 0;
-		if( $count%100 == 0 ){print '.';}
-		$count ++;
-
-		$from = $this->px->fs()->localize_path($from);
-		$to   = $this->px->fs()->localize_path($to  );
-		$path_region = $this->px->fs()->localize_path($path_region);
-
-		$result = true;
-
-		if( $this->px->fs()->is_file( $from.$path_region ) ){
-			if( $this->px->fs()->mkdir_r( dirname( $to.$path_region ) ) ){
-				if( $this->px->is_ignore_path( $path_region ) ){
-					// ignore指定されているパスには、操作しない。
-				}elseif( !$this->is_region_path( $path_region ) ){
-					// 範囲外のパスには、操作しない。
-				}else{
-					if( !$this->px->fs()->copy( $from.$path_region , $to.$path_region , $perm ) ){
-						$result = false;
-					}
-				}
-			}else{
-				$result = false;
-			}
-		}elseif( $this->px->fs()->is_dir( $from.$path_region ) ){
-			if( !$this->px->fs()->is_dir( $to.$path_region ) ){
-				if( $this->px->is_ignore_path( $path_region ) ){
-					// ignore指定されているパスには、操作しない。
-				}elseif( !$this->is_region_path( $path_region ) ){
-					// 範囲外のパスには、操作しない。
-				}else{
-					if( !$this->px->fs()->mkdir_r( $to.$path_region ) ){
-						$result = false;
-					}
-				}
-			}
-			$itemlist = $this->px->fs()->ls( $from.$path_region );
-			foreach( $itemlist as $Line ){
-				if( $Line == '.' || $Line == '..' ){ continue; }
-				if( $this->px->fs()->is_dir( $from.$path_region.DIRECTORY_SEPARATOR.$Line ) ){
-					if( $this->px->fs()->is_file( $to.$path_region.DIRECTORY_SEPARATOR.$Line ) ){
-						continue;
-					}elseif( !$this->px->fs()->is_dir( $to.$path_region.DIRECTORY_SEPARATOR.$Line ) ){
-						if( $this->px->is_ignore_path( $path_region.DIRECTORY_SEPARATOR.$Line ) ){
-							// ignore指定されているパスには、操作しない。
-						}elseif( !$this->is_region_path( $path_region.DIRECTORY_SEPARATOR.$Line ) ){
-							// 範囲外のパスには、操作しない。
-						}else{
-							if( !$this->px->fs()->mkdir_r( $to.$path_region.DIRECTORY_SEPARATOR.$Line ) ){
-								$result = false;
-							}
-						}
-					}
-					if( !$this->sync_dir_copy_r( $from , $to, $path_region.DIRECTORY_SEPARATOR.$Line , $perm ) ){
-						$result = false;
-					}
-					continue;
-				}elseif( $this->px->fs()->is_file( $from.$path_region.DIRECTORY_SEPARATOR.$Line ) ){
-					if( !$this->sync_dir_copy_r( $from, $to, $path_region.DIRECTORY_SEPARATOR.$Line , $perm ) ){
-						$result = false;
-					}
-					continue;
-				}
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * ディレクトリの内部を比較し、$comparisonに含まれない要素を$targetから削除する。
-	 *
-	 * ただし、ignore指定されているパスに対しては操作を行わない。
-	 *
-	 * @param string $target クリーニング対象のディレクトリパス
-	 * @param string $comparison 比較するディレクトリのパス
-	 * @param string $path_region ルート以下のパス
-	 * @return bool 成功時 `true`、失敗時 `false` を返します。
-	 */
-	private function sync_dir_compare_and_cleanup( $target , $comparison, $path_region ){
-		static $count = 0;
-		if( $count%100 == 0 ){print '.';}
-		$count ++;
-
-		if( is_null( $comparison ) || is_null( $target ) ){
-			return false;
-		}
-
-		$target = $this->px->fs()->localize_path($target);
-		$comparison = $this->px->fs()->localize_path($comparison);
-		$path_region = $this->px->fs()->localize_path($path_region);
-		$flist = array();
-
-		// 先に、ディレクトリ内をスキャンする
-		if( $this->px->fs()->is_dir( $target.$path_region ) ){
-			$flist = $this->px->fs()->ls( $target.$path_region );
-			foreach ( $flist as $Line ){
-				if( $Line == '.' || $Line == '..' ){ continue; }
-				$this->sync_dir_compare_and_cleanup( $target , $comparison, $path_region.DIRECTORY_SEPARATOR.$Line );
-			}
-			$flist = $this->px->fs()->ls( $target.$path_region );
-		}
-
-
-		if( !file_exists( $comparison.$path_region ) && file_exists( $target.$path_region ) ){
-			if( $this->px->is_ignore_path( $path_region ) ){
-				// ignore指定されているパスには、操作しない。
-				return true;
-			}elseif( !$this->is_region_path( $path_region ) ){
-				// 範囲外のパスには、操作しない。
-				return true;
-			}
-			if( $this->px->fs()->is_dir( $target.$path_region ) ){
-				if( !count($flist) ){
-					// ディレクトリの場合は、内容が空でなければ削除しない。
-					$this->px->fs()->rm( $target.$path_region );
-				}
-			}else{
-				$this->px->fs()->rm( $target.$path_region );
-			}
-
-			return true;
-		}
-
-		return true;
 	}
 
 
