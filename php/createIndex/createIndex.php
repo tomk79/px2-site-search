@@ -376,17 +376,13 @@ class createIndex {
 						case 'pass':
 							// pass
 							print $ext.' -> '.$proc_type."\n";
-							// TODO: pass の場合のインデックス作成を実装する
-							// if( !$this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ) ){
-							// 	$status_code = 500;
-							// 	$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to making parent directory.' ));
-							// 	break;
-							// }
-							// if( !$this->px->fs()->copy( dirname($_SERVER['SCRIPT_FILENAME']).$path , $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) ){
-							// 	$status_code = 500;
-							// 	$this->alert_log(array( @date('c'), $path_rewrited, 'FAILED to copying file.' ));
-							// 	break;
-							// }
+
+							$json = (object) array();
+							$json->href = $path_rewrited;
+							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
+							$json->content = $this->px->fs()->read_file(dirname($_SERVER['SCRIPT_FILENAME']).$path);
+							$this->save_content_json($json);
+
 							$status_code = 200;
 							break;
 
@@ -440,13 +436,12 @@ class createIndex {
 
 							// コンテンツの書き出し処理
 							// エラーが含まれている場合でも、得られたコンテンツを出力する。
-							$realpath_plugin_files = $this->px->realpath_plugin_private_cache();
-							$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
 							$json = (object) array();
 							$json->href = $path_rewrited;
 							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
-							$json->content = strip_tags(base64_decode( $bin->body_base64 ?? null ));
-							$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+							$json->content = base64_decode( $bin->body_base64 ?? null );
+							$this->save_content_json($json);
+
 
 							foreach( $bin->relatedlinks as $link ){
 								$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
@@ -1034,6 +1029,19 @@ class createIndex {
 		}
 
 		return $path;
+	}
+
+
+	/**
+	 * コンテンツJSONを保存する
+	 */
+	private function save_content_json($json){
+		static $realpath_plugin_files = $this->px->realpath_plugin_private_cache();
+		$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
+
+		$json->content = strip_tags($json->content);
+
+		$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 	}
 
 }

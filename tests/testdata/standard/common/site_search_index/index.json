@@ -31,6 +31,11 @@
             "content": "\n\n\t\n\t\t\n\t\tHOME | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOME\nHOME\n\n\nWelcome to Pickles 2.\n\n基本\nショーケース\n\n\n\n\n\n\n\n検索\n\n\n\tpx2sitesearch.createSearchForm('#cont-search-result-block');\n\n\n検索ボタン\n検索ダイアログを開く\n\n\t$('.cont-search-button').on('click', function(){\n\t\tpx2sitesearch.openSearchDialog();\n\t});\n\n\n\t\t\n\t\t\n\t\t\t\n\n\tHOME\n\n基本\nショーケース\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOME\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
         },
         {
+            "href": "/pass/index.html",
+            "title": "",
+            "content": "\n\n\nPassed HTML\n\n\nPassed HTML\n\nContents.\n\n\n\n"
+        },
+        {
             "href": "/showcase/extphp/index.html",
             "title": "PHPを拡張子で適用する",
             "content": ""

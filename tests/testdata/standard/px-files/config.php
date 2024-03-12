@@ -97,6 +97,8 @@ return call_user_func( function(){
 		'*/.git/*' => 'ignore' ,
 		'*/.gitignore' => 'ignore' ,
 
+		'/pass/*' => 'pass' ,
+
 		'*.php' => 'php' , // <= for Paprika
 
 		'*.html' => 'html' ,
