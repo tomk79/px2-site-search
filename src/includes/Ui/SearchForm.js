@@ -38,7 +38,12 @@ module.exports = function(main){
 						const list = document.createElement("ul");
 						results.forEach((result) => {
 							const listItem = document.createElement("li");
-							listItem.innerHTML = `<h3><a href="${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></h3><p>${documentList.contents[result.id].content.split("<").join("&lt;")}</p>`;
+							let content = documentList.contents[result.id].content;
+							if( content.length > 100 ){
+								content = content.slice( 0, 97 ) + '...';
+							}
+							content = content.split("<").join("&lt;");
+							listItem.innerHTML = `<h3><a href="${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></h3><p>${content}</p>`;
 							list.appendChild(listItem);
 						});
 						$resultsDiv.append(list);
