@@ -3,47 +3,42 @@
         {
             "href": "/basic/index.html",
             "title": "基本",
-            "content": "\n\n\t\n\t\t\n\t\t基本 | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOME基本\n基本\n\n\nPaprika によるウェブアプリケーションの実装方針には、3つの種類があります。\n\n\t\t\n\t\t\n\t\t\t\n\n\t基本\n\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOME基本\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
+            "h2": "",
+            "h3": "",
+            "h4": "",
+            "content": "Paprika によるウェブアプリケーションの実装方針には、3つの種類があります。"
         },
         {
             "href": "/basic/php_api-ajax.html",
             "title": "1. PHPによるAPIにAJAX通信する",
-            "content": "\n\n\t\n\t\t\n\t\t1. PHPによるAPIにAJAX通信する | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOME基本1. PHPによるAPIにAJAX通信する\n1. PHPによるAPIにAJAX通信する\n\n\nAJAX通信する方法は、最もシンプルで直感的な実装方法です。\nページの内容を記述するコンテンツファイルとは別に、 *.php 拡張子のAPIプログラムを用意し、これとAJAX通信をして、クライアントサイドJavaScriptで画面の表示を更新する方法です。\nこの方法では、 コンテンツのHTMLは静的に出力されます。 *.php のAPIプログラムは、プレビュー環境でもパブリッシュ先でも動的に実行されます。 グローバル空間に $paprika が存在するように環境が整えられます。\n\n次の例は、 API sample.php から取得したJSONの内容を表示したものです。\n\n$(window).on('load', function(e){\n    $.ajax({\n        'url': './php_api-ajax_files/apis/sample.php',\n        'success': function(data, dataType){\n            console.log(data, dataType);\n            $('.cont-sample').append(\"DOCUMENT_ROOT: \"+data._SERVER.DOCUMENT_ROOT);\n        },\n        'error': function(XMLHttpRequest, textStatus, errorThrown){\n            console.error(XMLHttpRequest, textStatus, errorThrown);\n        },\n        'complete': function(XMLHttpRequest, textStatus){\n            console.log(XMLHttpRequest, textStatus);\n        }\n    });\n})\n\n\n\n\t\t\n\t\t\n\t\t\t\n\n\t基本\n\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOME基本1. PHPによるAPIにAJAX通信する\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
-        },
-        {
-            "href": "/basic/php_api-ajax_files/apis/sample.php",
-            "title": "",
-            "content": ""
-        },
-        {
-            "href": "/basic/php_page.php",
-            "title": "2. PHPで実行する",
-            "content": ""
+            "h2": "",
+            "h3": "",
+            "h4": "",
+            "content": "AJAX通信する方法は、最もシンプルで直感的な実装方法です。 ページの内容を記述するコンテンツファイルとは別に、 *.php 拡張子のAPIプログラムを用意し、これとAJAX通信をして、クライアントサイドJavaScriptで画面の表示を更新する方法です。 この方法では、 コンテンツのHTMLは静的に出力されます。 *.php のAPIプログラムは、プレビュー環境でもパブリッシュ先でも動的に実行されます。 グローバル空間に $paprika が存在するように環境が整えられます。 次の例は、 API sample.php から取得したJSONの内容を表示したものです。"
         },
         {
             "href": "/basic/php_preview.html",
             "title": "3. プレビュー環境で動的に実行する",
-            "content": "\n\n\t\n\t\t\n\t\t3. プレビュー環境で動的に実行する | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOME基本3. プレビュー環境で動的に実行する\n3. プレビュー環境で動的に実行する\n\n\n動的な値をコンテンツから出力します。\nパブリッシュの成果物は、実行結果の静的なHTMLファイルです。\nこの段落はPHPコードが動的に生成したものです。\n\t\t\n\t\t\n\t\t\t\n\n\t基本\n\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOME基本3. プレビュー環境で動的に実行する\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
+            "h2": "",
+            "h3": "",
+            "h4": "",
+            "content": "動的な値をコンテンツから出力します。 パブリッシュの成果物は、実行結果の静的なHTMLファイルです。 この段落はPHPコードが動的に生成したものです。"
         },
         {
             "href": "/index.html",
             "title": "HOME",
-            "content": "\n\n\t\n\t\t\n\t\tHOME | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOME\nHOME\n\n\nWelcome to Pickles 2.\n\n基本\nショーケース\n\n\n\n\n\n\n\n検索\n\n\n\tpx2sitesearch.createSearchForm('#cont-search-result-block');\n\n\n検索ボタン\n検索ダイアログを開く\n\n\t$('.cont-search-button').on('click', function(){\n\t\tpx2sitesearch.openSearchDialog();\n\t});\n\n\n\t\t\n\t\t\n\t\t\t\n\n\tHOME\n\n基本\nショーケース\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOME\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
+            "h2": "検索 検索ボタン",
+            "h3": "",
+            "h4": "",
+            "content": "Welcome to Pickles 2. 基本 ショーケース 検索 検索ボタン 検索ダイアログを開く"
         },
         {
             "href": "/pass/index.html",
-            "title": "",
-            "content": "\n\n\nPassed HTML\n\n\nPassed HTML\n\nContents.\n\n\n\n"
-        },
-        {
-            "href": "/showcase/extphp/index.html",
-            "title": "PHPを拡張子で適用する",
-            "content": ""
-        },
-        {
-            "href": "/showcase/index.html",
-            "title": "ショーケース",
-            "content": "\n\n\t\n\t\t\n\t\tショーケース | px2-site-search\n\t\t\n\t\t\n\t\t\n\n\t\t\n\n \n\n\n\n\n\n\n\n\n\n\n\t\t\n\t\t\n\t\t\n\n\t\n\t\n\n\t\n\t\t\n\t\t\tpx2-site-search\t\t\t\t\t\n\t\t\n\n\t\t\n基本\nショーケース\n\n\n\t\n\n\n\t\n\t\t\nHOMEショーケース\nショーケース\n\n\n\n\t\t\n\t\t\n\t\t\t\n\n\tショーケース\n\nPHPを拡張子で適用する\n\n\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n\tこのページの先頭へ戻る\n\nHOMEショーケース\n\t\t\n\t\t\n\t\t\t\n\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\n\n\t\t\n\t\t\n&copy;Tomoya Koyanagi.\n\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tメニュー\n\t\t\t\n\t\t\n\t\n\t\n\t\t\n\t\t\t\n\t\t\t\tpx2-site-search\n\t\t\t\n\t\t\t\n\n基本\n1. PHPによるAPIにAJAX通信する\n2. PHPで実行する\n3. プレビュー環境で動的に実行する\n\n\nショーケース\nPHPを拡張子で適用する\n\n\n\n\t\t\t\n\t\t\t\nHOME\t\t\t\n\t\t\n\t\n\n\n\t\n\t\t\n\t\t\t\n\t\t\t\tこのページの先頭へ戻る\n\t\t\t\n\t\t\n\t\n\n\n\n\t\t\n\n\t\t\n\t\t\n\t\t\twindow.addEventListener('load', function(){\n\t\t\t\t// .sidebar-fix を固定します\n\t\t\t\tif( $('.theme-layouts__rnavi-inner').length ){\n\t\t\t\t\tsidebarFix('.theme-layouts__rnavi-inner', {\n\t\t\t\t\t\tframe: $('.theme-layouts__rnavi'),\n\t\t\t\t\t\ttopBuffer: 10,\n\t\t\t\t\t\tforce: true\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t});\n\t\t\n\t\n\n"
+            "title": "Passed HTML",
+            "h2": "",
+            "h3": "",
+            "h4": "",
+            "content": "Contents."
         }
     ]
 }

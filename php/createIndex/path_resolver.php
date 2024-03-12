@@ -85,7 +85,7 @@ class path_resolver{
 
 
 		// HTMLをパース
-		$html = str_get_html(
+		$html = \picklesFramework2\px2SiteSearch\str_get_html(
 			mb_convert_encoding( $src, DEFAULT_TARGET_CHARSET, $detect_encoding ) ,
 			false, // $lowercase
 			false, // $forceTagsClosed

@@ -46,6 +46,9 @@
 		"vlucas/phpdotenv": "~5.4.0"
     },
     "autoload": {
+        "files": [
+            "php/simple_html_dom.php"
+        ],
         "psr-4": {
             "picklesFramework2\\px2SiteSearch\\": [
                 "php"

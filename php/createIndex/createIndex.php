@@ -1039,7 +1039,92 @@ class createIndex {
 		static $realpath_plugin_files = $this->px->realpath_plugin_private_cache();
 		$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
 
-		$json->content = strip_tags($json->content);
+		$json->h2 = '';
+		$json->h3 = '';
+		$json->h4 = '';
+
+		// HTMLをパース
+		$html = \picklesFramework2\px2SiteSearch\str_get_html(
+			$json->content,
+			false, // $lowercase
+			false, // $forceTagsClosed
+			DEFAULT_TARGET_CHARSET, // $target_charset
+			false, // $stripRN
+			DEFAULT_BR_TEXT, // $defaultBRText
+			DEFAULT_SPAN_TEXT // $defaultSpanText
+		);
+		if($html === false){
+			$json->content = strip_tags($json->content);
+		}else{
+			// style要素を削除
+			$ret = $html->find('style');
+			foreach( $ret as $retRow ){
+				$retRow->outertext = '';
+			}
+			// link要素を削除
+			$ret = $html->find('link');
+			foreach( $ret as $retRow ){
+				$retRow->outertext = '';
+			}
+			// script要素を削除
+			$ret = $html->find('script');
+			foreach( $ret as $retRow ){
+				$retRow->outertext = '';
+			}
+			// 見出しを抽出
+			$ret = $html->find('h2');
+			$headding_array = array();
+			foreach( $ret as $retRow ){
+				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+			}
+			$json->h2 = implode(' ', $headding_array);
+
+			$ret = $html->find('h3');
+			$headding_array = array();
+			foreach( $ret as $retRow ){
+				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+			}
+			$json->h3 = implode(' ', $headding_array);
+
+			$ret = $html->find('h4');
+			$headding_array = array();
+			foreach( $ret as $retRow ){
+				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+			}
+			$json->h4 = implode(' ', $headding_array);
+
+			// h1を抽出
+			if( !strlen($json->title ?? '') ){
+				$headding_array = array();
+				$ret = $html->find('h1');
+				foreach( $ret as $retRow ){
+					array_push($headding_array, trim(strip_tags($retRow->innertext)));
+				}
+				if( !count($headding_array) ){
+					$ret = $html->find('title');
+					foreach( $ret as $retRow ){
+						array_push($headding_array, trim(strip_tags($retRow->innertext)));
+					}
+				}
+				$json->title = implode(' ', $headding_array);
+			}
+
+			// コンテンツを抽出
+			$contents_array = array();
+			$ret = $html->find('.contents');
+			foreach( $ret as $retRow ){
+				array_push($contents_array, trim(strip_tags($retRow->innertext)));
+			}
+			$json->content = implode(' ', $contents_array);
+
+			$json->content = strip_tags($json->content);
+			$json->content = preg_replace('/\s+/', " ", $json->content);
+			$json->content = trim($json->content);
+		}
+
+		if(!strlen($json->content ?? '')){
+			return;
+		}
 
 		$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 	}

@@ -58,7 +58,10 @@ class main {
             $json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
             array_push($integrated->contents, (object) array(
                 "href" => $json->href ?? null,
-                "title" => $json->page_info->title ?? '',
+                "title" => $json->page_info->title ?? $json->title ?? '',
+                "h2" => $json->h2 ?? '',
+                "h3" => $json->h3 ?? '',
+                "h4" => $json->h4 ?? '',
                 "content" => $json->content ?? '',
             ));
         }
