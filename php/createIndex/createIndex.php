@@ -20,6 +20,9 @@ class createIndex {
 	/** プラグイン設定 */
 	private $plugin_conf;
 
+	/** パブリッシュ設定 */
+	private $publish_options;
+
 	/** パス変換オブジェクト */
 	private $path_rewriter;
 
@@ -63,25 +66,26 @@ class createIndex {
 	public function __construct( $main ){
 		$this->main = $main;
 		$this->px = $main->px();
+		$this->plugin_conf = $main->plugin_conf();
 
 		// プラグイン設定の初期化
 		// NOTE: ※ここで取り扱うのは、パブリッシュプラグインのオプション
 		$plugins = new plugins($this->px, $this);
-		$options = $plugins->get_plugin_options('\tomk79\pickles2\publishEx\publish::register___', 'before_content');
-		if( !$options ){
-			$options = $plugins->get_plugin_options('\picklesFramework2\commands\publish::register', 'before_content');
+		$publish_options = $plugins->get_plugin_options('\tomk79\pickles2\publishEx\publish::register', 'before_content');
+		if( !$publish_options ){
+			$publish_options = $plugins->get_plugin_options('\picklesFramework2\commands\publish::register', 'before_content');
 		}
 
-		if( !is_object($options) ){
-			$options = json_decode('{}');
+		if( !is_object($publish_options) ){
+			$publish_options = json_decode('{}');
 		}
-		if( !isset($options->paths_ignore) || !is_array($options->paths_ignore) ){
-			$options->paths_ignore = array();
+		if( !isset($publish_options->paths_ignore) || !is_array($publish_options->paths_ignore) ){
+			$publish_options->paths_ignore = array();
 		}
-		if( !isset($options->devices) || !is_array($options->devices) ){
-			$options->devices = array();
+		if( !isset($publish_options->devices) || !is_array($publish_options->devices) ){
+			$publish_options->devices = array();
 		}
-		foreach( $options->devices as $device ){
+		foreach( $publish_options->devices as $device ){
 			if( !is_object($device) ){
 				$device = json_decode('{}');
 			}
@@ -104,18 +108,18 @@ class createIndex {
 				$device->rewrite_direction = null;
 			}
 		}
-		if( !property_exists($options, 'skip_default_device') ){
-			$options->skip_default_device = false;
+		if( !property_exists($publish_options, 'skip_default_device') ){
+			$publish_options->skip_default_device = false;
 		}
 
-		$this->plugin_conf = $options;
-		$this->path_rewriter = new path_rewriter( $this->px, $this->plugin_conf );
-		$this->tmp_publish_dir = new tmp_publish_dir( $this->px, $this->plugin_conf );
-		$this->device_target_path = new device_target_path( $this->px, $this->plugin_conf );
+		$this->publish_options = $publish_options;
+		$this->path_rewriter = new path_rewriter( $this->px, $this->publish_options );
+		$this->tmp_publish_dir = new tmp_publish_dir( $this->px, $this->publish_options );
+		$this->device_target_path = new device_target_path( $this->px, $this->publish_options );
 
 		$this->path_tmp_publish = $this->px->fs()->get_realpath( $this->px->get_realpath_homedir().'_sys/ram/publish/' );
 		$this->path_lockfile = $this->path_tmp_publish.'applock.txt';
-	if( $this->get_path_publish_dir() !== false ){
+		if( $this->get_path_publish_dir() !== false ){
 			$this->path_publish_dir = $this->get_path_publish_dir();
 		}
 		$this->domain = $this->px->conf()->domain;
@@ -205,12 +209,12 @@ class createIndex {
 		print 'lockfile: '.$this->path_lockfile."\n";
 		print 'domain: '.$this->domain."\n";
 		print 'docroot directory: '.$this->path_controot."\n";
-		print 'ignore: '.join(', ', $this->plugin_conf->paths_ignore)."\n";
+		print 'ignore: '.join(', ', $this->publish_options->paths_ignore)."\n";
 		print 'region: '.join(', ', $this->paths_region)."\n";
 		print 'ignore (tmp): '.join(', ', $this->paths_ignore)."\n";
 		print 'keep cache: '.($this->flg_keep_cache ? 'true' : 'false')."\n";
 		print 'devices:'."\n";
-		foreach($this->plugin_conf->devices as $key=>$device){
+		foreach($this->publish_options->devices as $key=>$device){
 			print '  - device['.$key.']:'."\n";
 			print '    - user_agent: '.$device->user_agent."\n";
 			print '    - path_rewrite_rule: '.$device->path_rewrite_rule."\n";
@@ -218,7 +222,7 @@ class createIndex {
 			print '    - paths_ignore: '.(is_array($device->paths_ignore) ? join(', ', $device->paths_ignore) : '')."\n";
 			print '    - rewrite_direction: '.$device->rewrite_direction."\n";
 		}
-		print 'skip default device: '.($this->plugin_conf->skip_default_device ? 'true' : 'false')."\n";
+		print 'skip default device: '.($this->publish_options->skip_default_device ? 'true' : 'false')."\n";
 		print '------------'."\n";
 		flush();
 		return ob_get_clean();
@@ -301,7 +305,7 @@ class createIndex {
 
 		file_put_contents($this->path_tmp_publish.'timelog.txt', 'Started at: '.date('c', $total_time)."\n", FILE_APPEND); // 2020-04-01 @tomk79 記録するようにした。
 
-		$device_list = $this->plugin_conf->devices;
+		$device_list = $this->publish_options->devices;
 		foreach($device_list as $device_num => $device_info){
 			$device_list[$device_num]->user_agent = trim($device_info->user_agent).'/PicklesCrawler';
 			if($this->px->fs()->is_dir($device_info->path_publish_dir)){
@@ -311,7 +315,7 @@ class createIndex {
 			}
 			$device_list[$device_num]->path_rewrite_rule = $this->path_rewriter->normalize_callback( $device_list[$device_num]->path_rewrite_rule ?? null );
 		}
-		if( !$this->plugin_conf->skip_default_device ){
+		if( !$this->publish_options->skip_default_device ){
 			// 標準デバイスを暗黙的に追加する
 			array_unshift($device_list, json_decode(json_encode(array(
 				'user_agent' => '',
@@ -443,8 +447,6 @@ class createIndex {
 							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
 							$json->content = strip_tags(base64_decode( $bin->body_base64 ?? null ));
 							$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-							// $this->px->fs()->mkdir_r( dirname( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited ) );
-							// $this->px->fs()->save_file( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited, base64_decode( $bin->body_base64 ?? null ) );
 
 							foreach( $bin->relatedlinks as $link ){
 								$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
@@ -792,7 +794,7 @@ class createIndex {
 			return $rtn[$path];
 		}
 
-		foreach( $this->plugin_conf->paths_ignore as $row ){
+		foreach( $this->publish_options->paths_ignore as $row ){
 			if(!is_string($row)){continue;}
 			$preg_pattern = preg_quote($this->px->fs()->normalize_path($this->px->fs()->get_realpath($row)), '/');
 			if( preg_match('/\*/',$preg_pattern) ){
