@@ -11,9 +11,18 @@ module.exports = function(){
 		preset: "match",
 		document: {
 			id: "id",
-			store: ["title", "content"],
+			store: [
+				"title",
+				"h2",
+				"h3",
+				"h4",
+				"content",
+			],
 			index: [
-				{ field: "title", boosting: 3 },
+				{ field: "title", boosting: 5 },
+				{ field: "h2", boosting: 4 },
+				{ field: "h3", boosting: 3 },
+				{ field: "h4", boosting: 2 },
 				{ field: "content", boosting: 1 },
 			],
 		},
