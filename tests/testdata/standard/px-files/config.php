@@ -199,7 +199,7 @@ return call_user_func( function(){
 
 			// コンテンツから除外する要素のセレクタ
 			// 省略時: 除外しない
-			'contents_ignore_selector' => array(
+			'ignored_contents_selector' => array(
 				'.contents-ignored',
 			),
 		)),

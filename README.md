@@ -26,7 +26,7 @@ $conf->funcs->before_content = array(
 
         // コンテンツから除外する要素のセレクタ
         // 省略時: 除外しない
-        'contents_ignore_selector' => array(
+        'ignored_contents_selector' => array(
             '.contents-ignored',
         ),
     )),

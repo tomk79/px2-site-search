@@ -1078,9 +1078,9 @@ class createIndex {
 			$html = $this->parse_html( '<div>'.implode("\n", $contents_array).'</div>' );
 
 			// 除外コンテンツ
-			if( is_array($this->main->plugin_conf()->contents_ignore_selector) && count($this->main->plugin_conf()->contents_ignore_selector) ){
-				foreach($this->main->plugin_conf()->contents_ignore_selector as $contents_ignore_selector ){
-					$ret = $html->find($contents_ignore_selector);
+			if( is_array($this->main->plugin_conf()->ignored_contents_selector) && count($this->main->plugin_conf()->ignored_contents_selector) ){
+				foreach($this->main->plugin_conf()->ignored_contents_selector as $ignored_contents_selector ){
+					$ret = $html->find($ignored_contents_selector);
 					foreach( $ret as $retRow ){
 						$retRow->outertext = '';
 					}
