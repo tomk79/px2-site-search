@@ -3,9 +3,10 @@ const $ = require('jquery');
 module.exports = function(main){
 
 	let storage = {};
-	const allowClientCache = (main.params().local_storage_key ? true : false);
 
     this.load = function(callback){
+		const allowClientCache = (main.params().local_storage_key ? true : false);
+
 		if(allowClientCache){
 			storage = JSON.parse(localStorage.getItem(main.params().local_storage_key)) ?? {};
 			if( storage && storage.loadedAt && storage.loadedAt > Math.floor(Date.now()/1000) - (3*60*60)){
