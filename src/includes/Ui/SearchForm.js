@@ -2,9 +2,11 @@
 const $ = require('jquery');
 const $script = $('script').last();
 const __dirname = $script.attr('src').replace(/[^\/]+$/, '');
+const path_controot = $script.attr('data-path-controot') || '/';
 
 module.exports = function(main){
 	const self = this;
+	const href_prefix = path_controot.replace(/\/*$/, '');
 
 	/**
 	 * 検索フォームを生成する
@@ -43,7 +45,7 @@ module.exports = function(main){
 								content = content.slice( 0, 97 ) + '...';
 							}
 							content = content.split("<").join("&lt;");
-							listItem.innerHTML = `<h3><a href="${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></h3><p>${content}</p>`;
+							listItem.innerHTML = `<h3><a href="${href_prefix}${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></h3><p>${content}</p>`;
 							list.appendChild(listItem);
 						});
 						$resultsDiv.append(list);
