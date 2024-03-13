@@ -4,7 +4,7 @@ const $script = $('script').last();
 const params = {
 	__dirname: $script.attr('src').replace(/[^\/]+$/, ''),
 	path_controot: $script.attr('data-path-controot') || '/',
-	local_storage_key: $script.attr('data-local-storage-key') || 'px2-site-search',
+	local_storage_key: $script.attr('data-local-storage-key') || null,
 };
 
 const DataLoader = require("./DataLoader.js");
