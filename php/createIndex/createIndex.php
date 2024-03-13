@@ -1044,18 +1044,49 @@ class createIndex {
 		$json->h4 = '';
 
 		// HTMLをパース
-		$html = \picklesFramework2\px2SiteSearch\str_get_html(
-			$json->content,
-			false, // $lowercase
-			false, // $forceTagsClosed
-			DEFAULT_TARGET_CHARSET, // $target_charset
-			false, // $stripRN
-			DEFAULT_BR_TEXT, // $defaultBRText
-			DEFAULT_SPAN_TEXT // $defaultSpanText
-		);
+		$html = $this->parse_html( $json->content );
 		if($html === false){
 			$json->content = strip_tags($json->content);
+			$json->content = preg_replace('/[ \t\r\n]+/', " ", $json->content);
+			$json->content = trim($json->content);
 		}else{
+
+			// h1を抽出
+			if( !strlen($json->title ?? '') ){
+				$headding_array = array();
+				$ret = $html->find('h1');
+				foreach( $ret as $retRow ){
+					array_push($headding_array, trim(strip_tags($retRow->innertext)));
+				}
+				if( !count($headding_array) ){
+					$ret = $html->find('title');
+					foreach( $ret as $retRow ){
+						array_push($headding_array, trim(strip_tags($retRow->innertext)));
+					}
+				}
+				$json->title = implode(' ', $headding_array);
+			}
+
+			// コンテンツを抽出
+			$contents_array = array();
+			$ret = $html->find($this->main->plugin_conf()->contents_area_selector);
+			foreach( $ret as $retRow ){
+				array_push($contents_array, $retRow->outertext);
+			}
+
+			// 抽出されたHTMLを再パース
+			$html = $this->parse_html( '<div>'.implode("\n", $contents_array).'</div>' );
+
+			// 除外コンテンツ
+			if( is_array($this->main->plugin_conf()->contents_ignore_selector) && count($this->main->plugin_conf()->contents_ignore_selector) ){
+				foreach($this->main->plugin_conf()->contents_ignore_selector as $contents_ignore_selector ){
+					$ret = $html->find($contents_ignore_selector);
+					foreach( $ret as $retRow ){
+						$retRow->outertext = '';
+					}
+				}
+			}
+
 			// style要素を削除
 			$ret = $html->find('style');
 			foreach( $ret as $retRow ){
@@ -1071,6 +1102,10 @@ class createIndex {
 			foreach( $ret as $retRow ){
 				$retRow->outertext = '';
 			}
+
+			// 削除後のHTMLを再パース
+			$html = $this->parse_html( $html->outertext );
+
 			// 見出しを抽出
 			$ret = $html->find('h2');
 			$headding_array = array();
@@ -1093,30 +1128,8 @@ class createIndex {
 			}
 			$json->h4 = implode(' ', $headding_array);
 
-			// h1を抽出
-			if( !strlen($json->title ?? '') ){
-				$headding_array = array();
-				$ret = $html->find('h1');
-				foreach( $ret as $retRow ){
-					array_push($headding_array, trim(strip_tags($retRow->innertext)));
-				}
-				if( !count($headding_array) ){
-					$ret = $html->find('title');
-					foreach( $ret as $retRow ){
-						array_push($headding_array, trim(strip_tags($retRow->innertext)));
-					}
-				}
-				$json->title = implode(' ', $headding_array);
-			}
-
-			// コンテンツを抽出
-			$contents_array = array();
-			$ret = $html->find($this->main->plugin_conf()->contents_area_selector);
-			foreach( $ret as $retRow ){
-				array_push($contents_array, trim(strip_tags($retRow->innertext)));
-			}
-			$json->content = implode(' ', $contents_array);
-
+			// 検索用にコンテンツを整形
+			$json->content = $html->outertext;
 			$json->content = strip_tags($json->content);
 			$json->content = preg_replace('/[ \t\r\n]+/', " ", $json->content);
 			$json->content = trim($json->content);
@@ -1127,6 +1140,22 @@ class createIndex {
 		}
 
 		$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+	}
+
+	/**
+	 * HTMLをパースする
+	 */
+	private function parse_html( $src ){
+		$html = \picklesFramework2\px2SiteSearch\str_get_html(
+			$src,
+			false, // $lowercase
+			false, // $forceTagsClosed
+			DEFAULT_TARGET_CHARSET, // $target_charset
+			false, // $stripRN
+			DEFAULT_BR_TEXT, // $defaultBRText
+			DEFAULT_SPAN_TEXT // $defaultSpanText
+		);
+		return $html;
 	}
 
 }

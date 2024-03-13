@@ -23,6 +23,12 @@ $conf->funcs->before_content = array(
         // コンテンツエリアを抽出するセレクタ
         // 省略時: '.contents'
         'contents_area_selector' => '.contents',
+
+        // コンテンツから除外する要素のセレクタ
+        // 省略時: 除外しない
+        'contents_ignore_selector' => array(
+            '.contents-ignored',
+        ),
     )),
 );
 ```
