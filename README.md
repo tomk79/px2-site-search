@@ -40,7 +40,9 @@ $conf->funcs->before_content = array(
 アセットをロードする
 先頭の `/common/site_search_index/` の部分は、 `path_client_assets_dir` で設定したパスを参照するように書き換えてください。
 -->
-<script src="<?= $px->href('/common/site_search_index/assets/px2-site-search.js') ?>" data-path-controot="<?= $px->conf()->path_controot ?>"></script>
+<script src="<?= $px->href('/common/site_search_index/assets/px2-site-search.js') ?>"
+    data-path-controot="<?= $px->conf()->path_controot ?>"
+    data-local-storage-key="px2-site-search"></script>
 <link rel="stylesheet" href="<?= $px->href('/common/site_search_index/assets/px2-site-search.css') ?>" />
 
 <!--

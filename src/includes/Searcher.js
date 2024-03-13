@@ -1,6 +1,6 @@
 const FlexSearch = require("flexsearch").default;
 
-module.exports = function(){
+module.exports = function(main){
 
 	// --------------------------------------
 	// FlexSearch インデックスの作成

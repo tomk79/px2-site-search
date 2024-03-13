@@ -1,12 +1,9 @@
 
 const $ = require('jquery');
-const $script = $('script').last();
-const __dirname = $script.attr('src').replace(/[^\/]+$/, '');
-const path_controot = $script.attr('data-path-controot') || '/';
 
 module.exports = function(main){
 	const self = this;
-	const href_prefix = path_controot.replace(/\/*$/, '');
+	const href_prefix = main.params().path_controot.replace(/\/*$/, '');
 
 	/**
 	 * 検索フォームを生成する

@@ -37,5 +37,5 @@ mix
 	.js('src/px2-site-search.js', 'public/')
 	.sass('src/px2-site-search.scss', 'public/')
 
-	.copyDirectory('public/', 'tests/testdata/standard/caches/p/sitesearch/assets/')
+	.copyDirectory('public/', 'tests/testdata/standard/common/site_search_index/assets/')
 ;
