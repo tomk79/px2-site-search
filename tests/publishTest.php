@@ -18,11 +18,18 @@ class publishTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testPublish(){
 
-		// Pickles 2 実行
+		// インデックスを作成
 		$output = $this->passthru( [
 			'php',
-			__DIR__.'/testdata/standard/.px_execute.php' ,
-			'/?PX=publish.run' ,
+			__DIR__.'/testdata/standard/.px_execute.php',
+			'/?PX=site_search.create_index',
+		] );
+
+		// パブリッシュ
+		$output = $this->passthru( [
+			'php',
+			__DIR__.'/testdata/standard/.px_execute.php',
+			'/?PX=publish.run',
 		] );
 
 		// トップページのソースコードを検査

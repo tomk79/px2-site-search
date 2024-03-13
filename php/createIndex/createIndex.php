@@ -1118,7 +1118,7 @@ class createIndex {
 			$json->content = implode(' ', $contents_array);
 
 			$json->content = strip_tags($json->content);
-			$json->content = preg_replace('/\s+/', " ", $json->content);
+			$json->content = preg_replace('/[ \t\r\n]+/', " ", $json->content);
 			$json->content = trim($json->content);
 		}
 
