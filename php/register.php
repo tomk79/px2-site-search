@@ -19,8 +19,6 @@ class register {
 			return __CLASS__.'::'.__FUNCTION__.'('.( is_array($px) ? json_encode($px) : '' ).')';
 		}
 
-		$conf = (object) $conf;
-
 		// PX=site-search を登録
 		$px->pxcmd()->register('site_search', function($px) use ($conf){
 			$pxcmd = $px->get_px_command();

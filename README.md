@@ -12,6 +12,18 @@ $ composer require tomk79/px2-site-search
 
 ### 2. `px-files/config.php` を開き、プラグインを設定
 
+```php
+$conf->funcs->before_content = array(
+    // PX=site_search
+    picklesFramework2\px2SiteSearch\register::before_content(array(
+        // クライアント用アセットを書き出す先のディレクトリ
+        // 省略時: '/common/site_search_index/'
+        'path_client_assets_dir' => '/common/site_search_index/',
+    )),
+);
+```
+
+
 ## PXコマンド - PX Commands
 
 ### PX=site_search.create_index

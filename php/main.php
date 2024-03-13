@@ -27,6 +27,9 @@ class main {
 	public function __construct( $px, $plugin_conf ){
 		$this->px = $px;
 		$this->plugin_conf = $plugin_conf;
+
+		$this->plugin_conf = (object) $this->plugin_conf;
+		$this->plugin_conf->path_client_assets_dir = $this->plugin_conf->path_client_assets_dir ?? '/common/site_search_index/';
 	}
 
 	public function px(){
@@ -66,9 +69,8 @@ class main {
             ));
         }
 
-		$path_index_data_dir = '/common/site_search_index/'; // TODO: 設定で変更できるようにする
 		$realpath_controot = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_realpath_docroot().$this->px->get_path_controot() ) );
-		$realpath_public_base = $realpath_controot.$path_index_data_dir.'/';
+		$realpath_public_base = $realpath_controot.$this->plugin_conf()->path_client_assets_dir.'/';
 
 		$this->px->fs()->mkdir_r($realpath_public_base);
 		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
