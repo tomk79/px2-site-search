@@ -30,6 +30,7 @@ class main {
 
 		$this->plugin_conf = (object) $this->plugin_conf;
 		$this->plugin_conf->path_client_assets_dir = $this->plugin_conf->path_client_assets_dir ?? '/common/site_search_index/';
+		$this->plugin_conf->contents_area_selector = $this->plugin_conf->contents_area_selector ?? '.contents';
 	}
 
 	public function px(){

@@ -1111,7 +1111,7 @@ class createIndex {
 
 			// コンテンツを抽出
 			$contents_array = array();
-			$ret = $html->find('.contents');
+			$ret = $html->find($this->main->plugin_conf()->contents_area_selector);
 			foreach( $ret as $retRow ){
 				array_push($contents_array, trim(strip_tags($retRow->innertext)));
 			}
