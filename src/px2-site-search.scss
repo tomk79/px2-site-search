@@ -1,1 +1,22 @@
-.px2-site-search {}
+.px2-site-search {
+    margin: 1em 0;
+    .px2-input-group {
+        width: 100%;
+    }
+
+    ul {
+        padding: 0;
+        margin: 1em 0;
+        li {
+            list-style-type: none;
+        }
+    }
+    &__result-title {
+        font-weight: bold;
+        font-size: 1.4em;
+        margin: 1.3em 0 0.5em 0;
+    }
+    &__result-summary {
+        margin: 0.5em 0 1em 0;
+    }
+}

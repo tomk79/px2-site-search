@@ -19,6 +19,7 @@ module.exports = function(main){
 		px2style.modal({
 			"title": "Search",
 			"body": $body,
+			"buttons": [],
 		});
 		main.createSearchForm($body);
 	}

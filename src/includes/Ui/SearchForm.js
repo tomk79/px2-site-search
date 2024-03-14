@@ -12,13 +12,15 @@ module.exports = function(main){
 		const $targetDiv = $(targetDiv);
 
 		let $htmlSearchForm = $(
-			`<div>
+			`<div class="px2-site-search">
 				<form action="javascript:;" method="get" id="px2-site-search__search-form">
-					<input type="search" name="q" value="" class="px2-input" />
-					<button class="px2-btn px2-btn--primary">検索</button>
+					<div class="px2-input-group">
+						<input type="search" name="q" value="" class="px2-input" />
+						<button class="px2-btn px2-btn--primary">検索</button>
+					</div>
 				</form>
-			</div>
-			<div class="px2-site-search__result"></div>`
+				<div class="px2-site-search__result"></div>
+			</div>`
 		);
 
 		$targetDiv.append($htmlSearchForm);
@@ -42,7 +44,10 @@ module.exports = function(main){
 								content = content.slice( 0, 97 ) + '...';
 							}
 							content = content.split("<").join("&lt;");
-							listItem.innerHTML = `<h3><a href="${href_prefix}${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></h3><p>${content}</p>`;
+							listItem.innerHTML = `
+								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></p>
+								<p class="px2-site-search__result-summary">${content}</p>
+							`;
 							list.appendChild(listItem);
 						});
 						$resultsDiv.append(list);
