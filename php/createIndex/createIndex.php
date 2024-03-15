@@ -379,7 +379,11 @@ class createIndex {
 
 							$json = (object) array();
 							$json->href = $path_rewrited;
-							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
+							$json->page_info = $this->px->internal_sub_request(
+								$path.'?PX=api.get.page_info',
+								array('output'=>'json'),
+								$return_var);
+							// $json->page_info = $this->px->site()->get_page_info($path_rewrited);
 							$json->content = $this->px->fs()->read_file(dirname($_SERVER['SCRIPT_FILENAME']).$path);
 							$this->save_content_json($json);
 
@@ -438,7 +442,11 @@ class createIndex {
 							// エラーが含まれている場合でも、得られたコンテンツを出力する。
 							$json = (object) array();
 							$json->href = $path_rewrited;
-							$json->page_info = $this->px->site()->get_page_info($path_rewrited);
+							$json->page_info = $this->px->internal_sub_request(
+								$path.'?PX=api.get.page_info',
+								array('output'=>'json'),
+								$return_var);
+							// $json->page_info = $this->px->site()->get_page_info($path_rewrited);
 							$json->content = base64_decode( $bin->body_base64 ?? null );
 							$this->save_content_json($json);
 
