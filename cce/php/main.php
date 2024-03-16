@@ -68,20 +68,16 @@ class main{
      */
     public function gpi($request){
         switch($request->command){
-            case 'test-gpi-call':
-                $this->cceAgent->async(array(
-                    'type'=>'gpi',
-                    'request' => array(
-                        'command' => 'test-async',
-                    ),
-                ));
-                return 'Test GPI Call Successful.';
+            case 'create_index':
+                $result = $this->px->internal_sub_request(
+                    '/?PX=site_search.create_index',
+                    array('output'=>'json'),
+                    $return_var);
+                return array(
+                    "result" => true,
+                    "message" => "Creating index: Successful."
+                );
 
-            case 'test-async':
-                $this->cceAgent->broadcast(array(
-                    'message'=>'Hello Broadcast Message !',
-                ));
-                return 'Test GPI Call Successful.';
         }
         return false;
     }
