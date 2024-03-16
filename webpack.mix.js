@@ -37,5 +37,10 @@ mix
 	.js('src/px2-site-search.js', 'public/')
 	.sass('src/px2-site-search.scss', 'public/')
 
+	// --------------------------------------
+	// siteSearchCceFront.js
+	.js('cce/src/siteSearchCceFront.js', 'cce/front/')
+	.sass('cce/src/siteSearchCceFront.scss', 'cce/front/')
+
 	.copyDirectory('public/', 'tests/testdata/standard/common/site_search_index/assets/')
 ;

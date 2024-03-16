@@ -385,6 +385,13 @@ return call_user_func( function(){
 	// $conf->plugins->px2dt->guieditor->path_resource_dir = '{$dirname}/{$filename}_files/resources/';
 
 
+	$conf->plugins->px2dt->custom_console_extensions = array(
+	    'px2-site-search' => array(
+			'class_name' => 'picklesFramework2\px2SiteSearch\cce\main()',
+			'capability' => array('manage'),
+		),
+	);
+
 	// -------- PHP Setting --------
 
 	/**

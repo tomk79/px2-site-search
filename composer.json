@@ -52,6 +52,9 @@
         "psr-4": {
             "picklesFramework2\\px2SiteSearch\\": [
                 "php"
+            ],
+            "picklesFramework2\\px2SiteSearch\\cce\\": [
+                "cce/php"
             ]
         }
     }
