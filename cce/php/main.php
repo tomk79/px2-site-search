@@ -71,11 +71,12 @@ class main{
             case 'create_index':
                 $result = $this->px->internal_sub_request(
                     '/?PX=site_search.create_index',
-                    array('output'=>'json'),
+                    array(),
                     $return_var);
                 return array(
                     "result" => true,
-                    "message" => "Creating index: Successful."
+                    "message" => "Creating index: Successful.",
+                    "stdout" => $result,
                 );
 
         }

@@ -12,7 +12,11 @@ window.siteSearchCceFront = function(cceAgent){
             'command': 'create_index'
         }, function(res){
             console.log('---- res:', res);
-            alert(res);
+            if(res.result){
+                alert('インデックスを更新しました。');
+            }else{
+                alert('[ERROR] インデックスの更新に失敗しました。');
+            }
         });
     });
 }
