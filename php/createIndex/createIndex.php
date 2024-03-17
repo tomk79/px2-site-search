@@ -1044,7 +1044,10 @@ class createIndex {
 	 * コンテンツJSONを保存する
 	 */
 	private function save_content_json($json){
-		static $realpath_plugin_files = $this->px->realpath_plugin_private_cache();
+		static $realpath_plugin_files;
+		if( is_null($realpath_plugin_files) ){
+			$realpath_plugin_files = $this->px->realpath_plugin_private_cache();
+		}
 		$this->px->fs()->mkdir_r($realpath_plugin_files.'contents/');
 
 		$json->h2 = '';
