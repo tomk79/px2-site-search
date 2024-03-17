@@ -5,9 +5,9 @@ module.exports = function(main){
 	let storage = {};
 
     this.load = function(callback){
-		const allowClientCache = (main.params().local_storage_key ? true : false);
+		const isAllowClientCache = (main.params().local_storage_key && main.params().allow_client_cache ? true : false);
 
-		if(allowClientCache){
+		if(isAllowClientCache){
 			storage = JSON.parse(localStorage.getItem(main.params().local_storage_key)) ?? {};
 			if( storage && storage.loadedAt && storage.loadedAt > Math.floor(Date.now()/1000) - (3*60*60)){
 				callback(storage);
@@ -21,7 +21,7 @@ module.exports = function(main){
 				storage.loadedAt = Math.floor(Date.now()/1000);
 				storage.contents = indexData.contents;
 
-				if(allowClientCache){
+				if(isAllowClientCache){
 					localStorage.setItem(main.params().local_storage_key, JSON.stringify(storage));
 				}
 

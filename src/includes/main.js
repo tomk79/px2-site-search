@@ -4,7 +4,8 @@ const $script = $('script').last();
 const params = {
 	__dirname: $script.attr('src').replace(/[^\/]+$/, ''),
 	path_controot: $script.attr('data-path-controot') || '/',
-	local_storage_key: $script.attr('data-local-storage-key') || null,
+	local_storage_key: $script.attr('data-local-storage-key') || 'px2-site-search',
+	allow_client_cache: isTrulyAttributeValue($script.attr('data-allow-client-cache')),
 };
 
 const DataLoader = require("./DataLoader.js");
@@ -69,4 +70,23 @@ module.exports = function(){
 		const uiSearchDialog = new UiSearchDialog(this);
 		uiSearchDialog.open();
 	}
+}
+
+/**
+ * 属性値をBooleanで評価する
+ */
+function isTrulyAttributeValue(attrValue){
+	if(attrValue === true){
+		return true;
+	}
+	if(attrValue === ""){ // NOTE: 値なしの属性が指定された場合
+		return true;
+	}
+	switch(attrValue.toLowerCase()){
+		case "true":
+		case "yes":
+		case "1":
+			return true;
+	}
+	return false;
 }

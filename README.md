@@ -42,7 +42,8 @@ $conf->funcs->before_content = array(
 -->
 <script src="<?= $px->href('/common/site_search_index/assets/px2-site-search.js') ?>"
     data-path-controot="<?= $px->conf()->path_controot ?>"
-    data-local-storage-key="px2-site-search"></script>
+    data-local-storage-key="px2-site-search"
+    data-allow-client-cache="true"></script>
 <link rel="stylesheet" href="<?= $px->href('/common/site_search_index/assets/px2-site-search.css') ?>" />
 
 <!--
