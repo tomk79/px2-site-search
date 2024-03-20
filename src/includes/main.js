@@ -1,4 +1,3 @@
-
 const $ = require('jquery');
 const $script = $('script').last();
 const params = {
@@ -82,7 +81,8 @@ function isTrulyAttributeValue(attrValue){
 	if(attrValue === ""){ // NOTE: 値なしの属性が指定された場合
 		return true;
 	}
-	switch(attrValue.toLowerCase()){
+	const attrValueLowerCase = (typeof(attrValue) === typeof("string") ? attrValue.toLowerCase() : attrValue);
+	switch(attrValueLowerCase){
 		case "true":
 		case "yes":
 		case "1":

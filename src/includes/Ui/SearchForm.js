@@ -1,4 +1,3 @@
-
 const $ = require('jquery');
 
 module.exports = function(main){
