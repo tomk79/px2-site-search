@@ -1,12 +1,14 @@
 # px2-site-search
 
+[Pickles 2](https://pickles2.com/)に、サイト内検索機能を追加します。
+
 ## Setup - セットアップ手順
 
 ### [Pickles 2 プロジェクト](https://pickles2.com/) をセットアップ
 
 ### 1. `composer.json` に、パッケージ情報を追加
 
-```
+```bash
 $ composer require tomk79/px2-site-search
 ```
 
@@ -39,6 +41,11 @@ $conf->funcs->before_content = array(
 <!--
 アセットをロードする
 先頭の `/common/site_search_index/` の部分は、 `path_client_assets_dir` で設定したパスを参照するように書き換えてください。
+
+オプション:
+- `data-path-controot`: Pickles 2 の `$conf->path_controot` の設定値
+- `data-local-storage-key`: px2-site-search に専有を許可する localStorage のキー
+- `data-allow-client-cache`: index.json をキャッシュするか？ (true: キャッシュする, false: キャッシュしない)
 -->
 <script src="<?= $px->href('/common/site_search_index/assets/px2-site-search.js') ?>"
     data-path-controot="<?= $px->conf()->path_controot ?>"
@@ -82,7 +89,6 @@ $ php ./src_px2/.px_execute.php "/?PX=site_search.create_index"
 	$conf->plugins->px2dt->custom_console_extensions = array(
 	    'px2-site-search' => array(
 			'class_name' => 'picklesFramework2\px2SiteSearch\cce\main()',
-			'capability' => array('manage'),
 		),
 	);
 ```
@@ -97,7 +103,7 @@ $ php ./src_px2/.px_execute.php "/?PX=site_search.create_index"
 
 ## 変更履歴 - Change Log
 
-### tomk79/px2-site-search v0.1.0 (リリース日未定)
+### tomk79/px2-site-search v0.1.0 (2024年3月20日)
 
 - Initial Release.
 
