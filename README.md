@@ -103,6 +103,10 @@ $ php ./src_px2/.px_execute.php "/?PX=site_search.create_index"
 
 ## 変更履歴 - Change Log
 
+### tomk79/px2-site-search v0.1.1 (リリース日未定)
+
+- `data-allow-client-cache` オプションを省略できない不具合を修正。
+
 ### tomk79/px2-site-search v0.1.0 (2024年3月20日)
 
 - Initial Release.
