@@ -62,12 +62,12 @@ class main {
         foreach($json_file_list as $json_file){
             $json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
             array_push($integrated->contents, (object) array(
-                "href" => $json->href ?? null,
-                "title" => $json->page_info->title ?? $json->title ?? '',
+                "h" => $json->href ?? null, // href
+                "t" => $json->page_info->title ?? $json->title ?? '', // title
                 "h2" => $json->h2 ?? '',
                 "h3" => $json->h3 ?? '',
                 "h4" => $json->h4 ?? '',
-                "content" => $json->content ?? '',
+                "c" => $json->content ?? '', // content
             ));
         }
 
@@ -75,7 +75,7 @@ class main {
 		$realpath_public_base = $realpath_controot.$this->plugin_conf()->path_client_assets_dir.'/';
 
 		$this->px->fs()->mkdir_r($realpath_public_base);
-		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_public_base.'assets/');
     }
 

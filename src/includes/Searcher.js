@@ -12,18 +12,18 @@ module.exports = function(main){
 		document: {
 			id: "id",
 			store: [
-				"title",
+				"t",
 				"h2",
 				"h3",
 				"h4",
-				"content",
+				"c",
 			],
 			index: [
-				{ field: "title", boosting: 5 },
+				{ field: "t", boosting: 5 },
 				{ field: "h2", boosting: 4 },
 				{ field: "h3", boosting: 3 },
 				{ field: "h4", boosting: 2 },
-				{ field: "content", boosting: 1 },
+				{ field: "c", boosting: 1 },
 			],
 		},
 	});

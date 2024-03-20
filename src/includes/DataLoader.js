@@ -17,6 +17,7 @@ module.exports = function(main){
 
 		$.ajax({
 			"url": `${main.params().__dirname}../index.json`,
+			"timeout": 30*1000,
 			"success": function(indexData){
 				storage.loadedAt = Math.floor(Date.now()/1000);
 				storage.contents = indexData.contents;
@@ -25,7 +26,10 @@ module.exports = function(main){
 					localStorage.setItem(main.params().local_storage_key, JSON.stringify(storage));
 				}
 
-                callback(storage);
+				callback(storage);
+			},
+			"error": function(){
+				console.error('Failed to load index.json (px2-site-search)');
 			},
 		});
     }

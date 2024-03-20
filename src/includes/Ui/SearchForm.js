@@ -28,8 +28,8 @@ module.exports = function(main){
 		// 検索入力のイベントリスナー
 		$targetDiv.find('#px2-site-search__search-form')
 			.on('submit', function(e){
-				const keyword = $(this).find('input[name=q]').val();
-				main.search(keyword, function(results, documentList){
+				const strKeywords = $(this).find('input[name=q]').val();
+				main.search(strKeywords, function(results, documentList){
 					const $resultsDiv = $targetDiv.find(`.px2-site-search__result`);
 					$resultsDiv.html("");
 
@@ -39,13 +39,13 @@ module.exports = function(main){
 						const list = document.createElement("ul");
 						results.forEach((result) => {
 							const listItem = document.createElement("li");
-							let content = documentList.contents[result.id].content;
+							let content = documentList.contents[result.id].c;
 							if( content.length > 100 ){
 								content = content.slice( 0, 97 ) + '...';
 							}
 							content = content.split("<").join("&lt;");
 							listItem.innerHTML = `
-								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].href}">${documentList.contents[result.id].title}</a></p>
+								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].h}">${documentList.contents[result.id].t}</a></p>
 								<p class="px2-site-search__result-summary">${content}</p>
 							`;
 							list.appendChild(listItem);
