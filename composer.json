@@ -29,7 +29,8 @@
     "require": {
         "php": ">=7.3.0",
         "tomk79/request": "~1.0",
-        "tomk79/filesystem": "~1.0"
+        "tomk79/filesystem": "~1.0",
+        "teamtnt/tntsearch": "~4.2.1"
     },
     "require-dev": {
         "pickles2/px-fw-2.x": "~2.0",
