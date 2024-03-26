@@ -61,7 +61,7 @@ class main {
 		$realpath_controot = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_realpath_docroot().$this->px->get_path_controot() ) );
 		$realpath_public_base = $realpath_controot.$this->plugin_conf()->path_client_assets_dir.'/';
 
-		$this->px->fs()->copy_r(__DIR__.'/../public/', $realpath_public_base.'assets/');
+		$this->px->fs()->copy_r(__DIR__.'/../public/assets/', $realpath_public_base.'assets/');
 
 		// --------------------------------------
 		// FlexSearch
@@ -85,9 +85,10 @@ class main {
 
 		// --------------------------------------
 		// TNT Search
-		if($this->px->fs()->rm($realpath_public_base.'tntsearch/')){
+		$this->px->fs()->copy_r(__DIR__.'/../public/search.php', $realpath_public_base.'search.php');
+		$this->px->fs()->rm($realpath_public_base.'tntsearch/');
+		if( $this->px->fs()->mkdir_r($realpath_public_base.'tntsearch/') ){
 			// TNT Search データディレクトリを初期化する
-			$this->px->fs()->mkdir_r($realpath_public_base.'tntsearch/');
 			touch($realpath_public_base.'tntsearch/articles.sqlite');
 
 			// NOTE: TNT Search はデータベースからコンテンツを取得してインデックスを作成する。

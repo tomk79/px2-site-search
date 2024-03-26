@@ -34,13 +34,13 @@ mix
 
 	// --------------------------------------
 	// px2-site-search.js
-	.js('src/px2-site-search.js', 'public/')
-	.sass('src/px2-site-search.scss', 'public/')
+	.js('src/assets/px2-site-search.js', 'public/assets/')
+	.sass('src/assets/px2-site-search.scss', 'public/assets/')
 
 	// --------------------------------------
 	// siteSearchCceFront.js
 	.js('cce/src/siteSearchCceFront.js', 'cce/front/')
 	.sass('cce/src/siteSearchCceFront.scss', 'cce/front/')
 
-	.copyDirectory('public/', 'tests/testdata/standard/common/site_search_index/assets/')
+	.copyDirectory('public/assets/', 'tests/testdata/standard/common/site_search_index/assets/')
 ;

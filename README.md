@@ -86,11 +86,11 @@ $ php ./src_px2/.px_execute.php "/?PX=site_search.create_index"
 `config.php` に次のような設定を追加します。
 
 ```php
-	$conf->plugins->px2dt->custom_console_extensions = array(
-	    'px2-site-search' => array(
-			'class_name' => 'picklesFramework2\px2SiteSearch\cce\main()',
-		),
-	);
+$conf->plugins->px2dt->custom_console_extensions = array(
+    'px2-site-search' => array(
+        'class_name' => 'picklesFramework2\px2SiteSearch\cce\main()',
+    ),
+);
 ```
 
 
