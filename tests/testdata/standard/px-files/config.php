@@ -189,6 +189,11 @@ return call_user_func( function(){
 	$conf->funcs->before_content = array(
 		// PX=site_search
 		picklesFramework2\px2SiteSearch\register::before_content(array(
+			// 検索エンジンの種類
+			// 省略時: 'client'
+			'engine_type' => 'client',
+			// 'engine_type' => 'paprika',
+
 			// クライアント用アセットを書き出す先のディレクトリ
 			// 省略時: '/common/site_search_index/'
 			'path_client_assets_dir' => '/common/site_search_index/',

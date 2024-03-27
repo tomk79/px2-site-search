@@ -24,8 +24,13 @@ module.exports = function(){
 	 * @param {*} callback 
 	 */
 	this.getDocumentList = function(callback){
+		if(this.params().engine_type != 'client'){
+			callback(false);
+			return;
+		}
 		if(documentList){
 			callback(documentList);
+			return;
 		}
 		dataLoader.load(function(data){
 			documentList = data;
@@ -48,11 +53,30 @@ module.exports = function(){
 	 * @param {*} callback 
 	 */
 	this.search = function(query, callback){
-		this.getDocumentList(function(documentList){
-			searcher.search(query, function(results){
-				callback(results, documentList);
+		const engine_type = this.params().engine_type;
+		if(engine_type == 'client'){
+			this.getDocumentList(function(documentList){
+				searcher.search(query, function(results){
+					callback(results, documentList);
+				});
 			});
-		});
+		}else if(engine_type == 'paprika'){
+			$.ajax({
+				"url": `${this.params().__dirname}../search.php`,
+				"data": {
+					"q": query,
+				},
+				"timeout": 30*1000,
+				"success": function(searchResult){
+console.log(searchResult);
+alert('TODO: 開発中です。');
+					callback(searchResult);
+				},
+				"error": function(){
+					console.error('Failed to load search.php');
+				},
+			});
+		}
 	}
 
 	/**
