@@ -2,7 +2,7 @@ const $ = require('jquery');
 const $script = $('script').last();
 const params = {
 	__dirname: $script.attr('src').replace(/[^\/]+$/, ''),
-	path_controot: $script.attr('data-path-controot') || '/',
+	path_controot: $script.attr('data-path-controot') || '$____data-path-controot____' || '/',
 	local_storage_key: $script.attr('data-local-storage-key') || 'px2-site-search',
 	allow_client_cache: isTrulyAttributeValue($script.attr('data-allow-client-cache')),
 };

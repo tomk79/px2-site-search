@@ -64,6 +64,12 @@ class main {
 		$this->px->fs()->copy_r(__DIR__.'/../public/assets/', $realpath_public_base.'assets/');
 
 		// --------------------------------------
+		// client side script
+		$px2SiteSearchJs = $this->px->fs()->read_file(__DIR__.'/../public/assets/px2-site-search.js');
+		$px2SiteSearchJs = preg_replace('/\$____data-path-controot____/s', $this->px->conf()->path_controot, $px2SiteSearchJs);
+		$this->px->fs()->save_file($realpath_public_base.'assets/px2-site-search.js', $px2SiteSearchJs);
+
+		// --------------------------------------
 		// FlexSearch
         $integrated = (object) array(
             "contents" => array(),
