@@ -30,6 +30,7 @@ class main {
 		$this->plugin_conf = $plugin_conf;
 
 		$this->plugin_conf = (object) $this->plugin_conf;
+		$this->plugin_conf->engine_type = $this->plugin_conf->engine_type ?? 'client';
 		$this->plugin_conf->path_client_assets_dir = $this->plugin_conf->path_client_assets_dir ?? '/common/site_search_index/';
 		$this->plugin_conf->contents_area_selector = $this->plugin_conf->contents_area_selector ?? '.contents';
 		$this->plugin_conf->ignored_contents_selector = $this->plugin_conf->ignored_contents_selector ?? array();
@@ -66,6 +67,7 @@ class main {
 		// --------------------------------------
 		// client side script
 		$px2SiteSearchJs = $this->px->fs()->read_file(__DIR__.'/../public/assets/px2-site-search.js');
+		$px2SiteSearchJs = preg_replace('/\$____engine_type____/s', $this->plugin_conf()->engine_type, $px2SiteSearchJs);
 		$px2SiteSearchJs = preg_replace('/\$____data-path-controot____/s', $this->px->conf()->path_controot, $px2SiteSearchJs);
 		$this->px->fs()->save_file($realpath_public_base.'assets/px2-site-search.js', $px2SiteSearchJs);
 
