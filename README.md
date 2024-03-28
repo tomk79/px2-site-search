@@ -107,7 +107,8 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 ### tomk79/px2-site-search v0.1.1 (リリース日未定)
 
-- サーバーサイドで検索を実行する `engine_type` オプションを追加した。
+- サーバーサイドで検索を実行できるようになった。
+- `engine_type` オプションを追加した。
 - `data-path-controot` オプションを削除した。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
 
