@@ -1,4 +1,5 @@
 const $ = require('jquery');
+const HighlightText = require('../HighlightText.js');
 
 module.exports = function(main){
 	const self = this;
@@ -38,11 +39,7 @@ module.exports = function(main){
 						const list = document.createElement("ul");
 						results.forEach((result) => {
 							const listItem = document.createElement("li");
-							let content = documentList.contents[result.id].c;
-							if( content.length > 100 ){
-								content = content.slice( 0, 97 ) + '...';
-							}
-							content = content.split("<").join("&lt;");
+							let content = HighlightText(documentList.contents[result.id].c);
 							listItem.innerHTML = `
 								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].h}">${documentList.contents[result.id].t}</a></p>
 								<p class="px2-site-search__result-summary">${content}</p>

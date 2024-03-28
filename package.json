@@ -7,7 +7,8 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production",
+        "test": "mocha --ui bdd ./tests/"
     },
     "devDependencies": {
         "@babel/core": "^7.17.8",
@@ -19,6 +20,7 @@
         "jquery": "^3.6.0",
         "laravel-mix": "^6.0.48",
         "lodash": "^4.17.21",
+        "mocha": "^10.4.0",
         "postcss": "^8.1.14",
         "raw-loader": "^4.0.2",
         "resolve-url-loader": "^5.0.0",

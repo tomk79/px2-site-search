@@ -3,7 +3,7 @@ const $script = $('script').last();
 const params = {
 	__dirname: $script.attr('src').replace(/[^\/]+$/, ''),
 	engine_type: '$____engine_type____',
-	path_controot: '$____data-path-controot____',
+	path_controot: $script.attr('data-path-controot') || '$____data-path-controot____',
 	local_storage_key: $script.attr('data-local-storage-key') || 'px2-site-search',
 	allow_client_cache: isTrulyAttributeValue($script.attr('data-allow-client-cache')),
 };
@@ -24,7 +24,7 @@ module.exports = function(){
 	 * @param {*} callback 
 	 */
 	this.getDocumentList = function(callback){
-		if(this.params().engine_type != 'client'){
+		if(this.params().engine_type == 'paprika'){
 			callback(false);
 			return;
 		}
@@ -54,13 +54,7 @@ module.exports = function(){
 	 */
 	this.search = function(query, callback){
 		const engine_type = this.params().engine_type;
-		if(engine_type == 'client'){
-			this.getDocumentList(function(documentList){
-				searcher.search(query, function(results){
-					callback(results, documentList);
-				});
-			});
-		}else if(engine_type == 'paprika'){
+		if(engine_type == 'paprika'){
 			$.ajax({
 				"url": `${this.params().__dirname}../search.php`,
 				"data": {
@@ -73,6 +67,12 @@ module.exports = function(){
 				"error": function(){
 					console.error('Failed to load search.php');
 				},
+			});
+		} else {
+			this.getDocumentList(function(documentList){
+				searcher.search(query, function(results){
+					callback(results, documentList);
+				});
 			});
 		}
 	}
