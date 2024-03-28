@@ -7,8 +7,8 @@ describe('Highlight text', function() {
 		this.timeout(60*1000);
 
 		assert.equal(
-			HighlightText('abc def foo hoge bar fuga foo.', 'foo bar'),
-			'abc def <mark>foo</mark> hoge <mark>bar</mark> fuga <mark>foo</mark>.'
+			HighlightText('abc def Foo hoge bar fuga foo.', 'foo bar'),
+			'abc def <mark>Foo</mark> hoge <mark>bar</mark> fuga <mark>foo</mark>.'
 		);
 
 		done();

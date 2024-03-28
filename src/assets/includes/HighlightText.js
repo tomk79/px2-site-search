@@ -6,18 +6,20 @@ module.exports = function(text, keywords){
 	// キーワードが登場する位置を検索
 	let aryKeywords = keywords.trim().split(/\s+/);
 	let hits = [];
+	const normalizedText = normalizeText(text);
 	aryKeywords.forEach((keyword)=>{
+		const normalizedKeyword = normalizeText(keyword);
 		let start = 0;
 		while(1){
-			let index = text.indexOf(keyword, start);
+			let index = normalizedText.indexOf(normalizedKeyword, start);
 			if(index < 0){
 				break;
 			}
 			hits.push({
 				index: index,
-				keyword: keyword,
+				keyword: normalizedKeyword,
 			});
-			start = index + keyword.length;
+			start = index + normalizedKeyword.length;
 			continue;
 		}
 	});
@@ -58,6 +60,14 @@ module.exports = function(text, keywords){
 	}
 
 	return returnText;
+}
+
+/**
+ * normalize text
+ */
+function normalizeText(text){
+	text = text.toLowerCase();
+	return text;
 }
 
 /**
