@@ -68,9 +68,7 @@ module.exports = function(){
 				},
 				"timeout": 30*1000,
 				"success": function(searchResult){
-console.log(searchResult);
-alert('TODO: 開発中です。');
-					callback(searchResult);
+					callback(searchResult.result, searchResult.documentList);
 				},
 				"error": function(){
 					console.error('Failed to load search.php');

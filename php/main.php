@@ -72,27 +72,13 @@ class main {
 		$this->px->fs()->save_file($realpath_public_base.'assets/px2-site-search.js', $px2SiteSearchJs);
 
 		// --------------------------------------
-		// FlexSearch
+		// initialize FlexSearch
         $integrated = (object) array(
             "contents" => array(),
         );
-        foreach($json_file_list as $json_file){
-            $json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
-            array_push($integrated->contents, (object) array(
-                "h" => $json->href ?? null, // href
-                "t" => $json->page_info->title ?? $json->title ?? '', // title
-                "h2" => $json->h2 ?? '',
-                "h3" => $json->h3 ?? '',
-                "h4" => $json->h4 ?? '',
-                "c" => $json->content ?? '', // content
-            ));
-        }
-
-		$this->px->fs()->mkdir_r($realpath_public_base);
-		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 
 		// --------------------------------------
-		// TNT Search
+		// initialize TNTSearch
 		$this->px->fs()->copy_r(__DIR__.'/../public/search.php', $realpath_public_base.'search.php');
 		$this->px->fs()->rm($realpath_public_base.'tntsearch/');
 		if( $this->px->fs()->mkdir_r($realpath_public_base.'tntsearch/') ){
@@ -125,10 +111,24 @@ class main {
 		$tnt->selectIndex("index.sqlite");
 		$index = $tnt->getIndex();
 
-		foreach($json_file_list as $idx => $json_file){
-			$json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
+		// --------------------------------------
+		// making index
+        foreach($json_file_list as $idx => $json_file){
+            $json = json_decode( $this->px->fs()->read_file($realpath_plugin_private_cache.'contents/'.$json_file) );
+
+			// FlexSearch
+            array_push($integrated->contents, (object) array(
+                "h" => $json->href ?? null, // href
+                "t" => $json->page_info->title ?? $json->title ?? '', // title
+                "h2" => $json->h2 ?? '',
+                "h3" => $json->h3 ?? '',
+                "h4" => $json->h4 ?? '',
+                "c" => $json->content ?? '', // content
+            ));
+
+			// TNTSearch
 			$index->insert(array(
-				'id' => $json->href ?? $idx,
+				'id' => $idx,
 				"href" => $json->href ?? null,
 				"title" => $json->page_info->title ?? $json->title ?? '',
 				"h2" => $json->h2 ?? '',
@@ -136,6 +136,9 @@ class main {
 				"h4" => $json->h4 ?? '',
 				"article" => $json->content ?? '', // content
 			));
-		}
+        }
+
+		$this->px->fs()->mkdir_r($realpath_public_base);
+		$this->px->fs()->save_file($realpath_public_base.'index.json', json_encode($integrated, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 	}
 }
