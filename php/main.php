@@ -83,41 +83,45 @@ class main {
 
 		// --------------------------------------
 		// initialize TNTSearch
-		$searchPhp = $this->px->fs()->read_file(__DIR__.'/../public/search.php');
-		$searchPhp = preg_replace('/\$____path_client_assets_dir____/s', $this->plugin_conf()->path_client_assets_dir, $searchPhp);
-		$searchPhp = preg_replace('/\$____path_private_data_dir____/s', $this->plugin_conf()->path_private_data_dir, $searchPhp);
-		$this->px->fs()->save_file($realpath_public_base.'search.php', $searchPhp);
-
-		$this->px->fs()->rm($realpath_private_data_base.'tntsearch/');
-		if( $this->px->fs()->mkdir_r($realpath_private_data_base.'tntsearch/') ){
-			// TNT Search データディレクトリを初期化する
-			touch($realpath_private_data_base.'tntsearch/articles.sqlite');
-
-			// NOTE: TNT Search はデータベースからコンテンツを取得してインデックスを作成する。
-			// 本作ではデータベースにコンテンツは格納しないので本来必要ないが、
-			// データベースがないとエラーが起きるので、ダミーだが作成している。
-			$pdo = new \PDO(
-				'sqlite'.':'.$realpath_private_data_base.'tntsearch/articles.sqlite',
-			);
-			$sql = 'CREATE TABLE articles (
-				id VARCHAR(255) NOT NULL,
-				title TEXT NOT NULL,
-				article TEXT NOT NULL,
-				PRIMARY KEY (id));';
-			$stmt = $pdo->prepare($sql);
-			$stmt->execute();
+		if( $this->plugin_conf->engine_type == 'paprika' ){
+			$searchPhp = $this->px->fs()->read_file(__DIR__.'/../public/search.php');
+			$searchPhp = preg_replace('/\$____path_client_assets_dir____/s', $this->plugin_conf()->path_client_assets_dir, $searchPhp);
+			$searchPhp = preg_replace('/\$____path_private_data_dir____/s', $this->plugin_conf()->path_private_data_dir, $searchPhp);
+			$this->px->fs()->save_file($realpath_public_base.'search.php', $searchPhp);
 		}
 
-		$tnt = new TNTSearch;
-		$tnt->loadConfig([
-			'driver'    => 'sqlite',
-			'database'  => $realpath_private_data_base.'tntsearch/articles.sqlite',
-			'storage'   => $realpath_private_data_base.'tntsearch/',
-			'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
-		]);
-		$indexer = $tnt->createIndex('index.sqlite');
-		$tnt->selectIndex("index.sqlite");
-		$index = $tnt->getIndex();
+		$this->px->fs()->rm($realpath_private_data_base.'tntsearch/');
+		if( $this->plugin_conf->engine_type == 'paprika' ){
+			if( $this->px->fs()->mkdir_r($realpath_private_data_base.'tntsearch/') ){
+				// TNT Search データディレクトリを初期化する
+				touch($realpath_private_data_base.'tntsearch/articles.sqlite');
+
+				// NOTE: TNT Search はデータベースからコンテンツを取得してインデックスを作成する。
+				// 本作ではデータベースにコンテンツは格納しないので本来必要ないが、
+				// データベースがないとエラーが起きるので、ダミーだが作成している。
+				$pdo = new \PDO(
+					'sqlite'.':'.$realpath_private_data_base.'tntsearch/articles.sqlite',
+				);
+				$sql = 'CREATE TABLE articles (
+					id VARCHAR(255) NOT NULL,
+					title TEXT NOT NULL,
+					article TEXT NOT NULL,
+					PRIMARY KEY (id));';
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute();
+			}
+
+			$tnt = new TNTSearch;
+			$tnt->loadConfig([
+				'driver'    => 'sqlite',
+				'database'  => $realpath_private_data_base.'tntsearch/articles.sqlite',
+				'storage'   => $realpath_private_data_base.'tntsearch/',
+				'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
+			]);
+			$indexer = $tnt->createIndex('index.sqlite');
+			$tnt->selectIndex("index.sqlite");
+			$index = $tnt->getIndex();
+		}
 
 		// --------------------------------------
 		// making index
@@ -135,15 +139,17 @@ class main {
             ));
 
 			// TNTSearch
-			$index->insert(array(
-				'id' => $idx,
-				"href" => $json->href ?? null,
-				"title" => $json->page_info->title ?? $json->title ?? '',
-				"h2" => $json->h2 ?? '',
-				"h3" => $json->h3 ?? '',
-				"h4" => $json->h4 ?? '',
-				"article" => $json->content ?? '', // content
-			));
+			if( $this->plugin_conf->engine_type == 'paprika' ){
+				$index->insert(array(
+					'id' => $idx,
+					"href" => $json->href ?? null,
+					"title" => $json->page_info->title ?? $json->title ?? '',
+					"h2" => $json->h2 ?? '',
+					"h3" => $json->h3 ?? '',
+					"h4" => $json->h4 ?? '',
+					"article" => $json->content ?? '', // content
+				));
+			}
         }
 
 		$this->px->fs()->mkdir_r($realpath_public_base);
