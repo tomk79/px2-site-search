@@ -5,6 +5,15 @@ module.exports = function(main){
 	const self = this;
 	const href_prefix = main.params().path_controot.replace(/\/*$/, '');
 
+	let words = {
+		"search": "Search",
+		"nothing": "Nothing found.",
+	};
+	if( main.params().lang == 'ja' ){
+		words.search = "検索";
+		words.nothing = "検索結果はありません。";
+	}
+
 	/**
 	 * 検索フォームを生成する
 	 */
@@ -16,7 +25,7 @@ module.exports = function(main){
 				<form action="javascript:;" method="get" id="px2-site-search__search-form">
 					<div class="px2-input-group">
 						<input type="search" name="q" value="" class="px2-input" />
-						<button class="px2-btn px2-btn--primary">検索</button>
+						<button class="px2-btn px2-btn--primary">${words.search}</button>
 					</div>
 				</form>
 				<div class="px2-site-search__result"></div>
@@ -34,7 +43,7 @@ module.exports = function(main){
 					$resultsDiv.html("");
 
 					if (results.length === 0) {
-						$resultsDiv.html("<p>検索結果はありません</p>");
+						$resultsDiv.html(`<p>${words.nothing}</p>`);
 					} else {
 						const list = document.createElement("ul");
 						results.forEach((result) => {

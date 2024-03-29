@@ -21,6 +21,12 @@ return call_user_func( function(){
 	/** コンテンツルートディレクトリ */
 	$conf->path_controot = '/';
 
+	/** デフォルトの言語 */
+	$conf->default_lang = 'ja';
+
+	/** 対応する言語 */
+	$conf->accept_langs = array('ja', 'en');
+
 
 	// paths
 
