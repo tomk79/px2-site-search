@@ -4,6 +4,7 @@ const params = {
 	__dirname: $script.attr('src').replace(/[^\/]+$/, ''),
 	engine_type: '$____engine_type____',
 	path_controot: $script.attr('data-path-controot') || '$____data-path-controot____',
+	lang: $script.attr('data-lang') || '$____lang____',
 	local_storage_key: $script.attr('data-local-storage-key') || 'px2-site-search',
 	allow_client_cache: isTrulyAttributeValue($script.attr('data-allow-client-cache')),
 };

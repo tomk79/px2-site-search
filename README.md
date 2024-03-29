@@ -48,11 +48,13 @@ $conf->funcs->before_content = array(
 
 オプション:
 - `data-path-controot`: Pickles 2 の `$conf->path_controot` の設定値 (省略可)
+- `data-lang`: Pickles 2 の `$px->lang()` の値 (省略可)
 - `data-local-storage-key`: px2-site-search に専有を許可する localStorage のキー
 - `data-allow-client-cache`: index.json をキャッシュするか？ (true: キャッシュする, false: キャッシュしない)
 -->
 <script src="<?= $px->href('/common/site_search_index/assets/px2-site-search.js') ?>"
     data-path-controot="<?= $px->conf()->path_controot ?>"
+    data-lang="<?= $px->lang() ?>"
     data-local-storage-key="px2-site-search"
     data-allow-client-cache="true"></script>
 <link rel="stylesheet" href="<?= $px->href('/common/site_search_index/assets/px2-site-search.css') ?>" />
@@ -112,6 +114,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 - サーバーサイドで検索を実行できるようになった。
 - `engine_type` オプションを追加した。
 - `data-path-controot` オプションを省略できるようになった。
+- `data-lang` オプションを追加。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
 
 ### tomk79/px2-site-search v0.1.0 (2024年3月20日)
