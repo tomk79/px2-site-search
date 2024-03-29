@@ -11,6 +11,13 @@ describe('Highlight text', function() {
 			'abc def <mark>Foo</mark> hoge <mark>bar</mark> fuga <mark>foo</mark>.'
 		);
 
+		assert.equal(
+			HighlightText('abc def Foo hoge bar fugafugafugafugafuga foo hogehogehoge.', 'foo bar', {
+				sideLength: 3,
+			}),
+			'...ef <mark>Foo</mark> hoge <mark>bar</mark> fu...ga <mark>foo</mark> ho...'
+		);
+
 		done();
 	});
 

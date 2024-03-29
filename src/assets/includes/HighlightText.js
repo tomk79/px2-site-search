@@ -1,13 +1,16 @@
 /**
  * Highlight Text
  */
-module.exports = function(text, keywords){
+module.exports = function(text, keywords, options){
+	options = options || {};
+	const HIGHLIGHT_MAX_LENGTH = options.maxLength || 120;
+	const HIGHLIGHT_SIDE_LENGTH = options.sideLength || 15;
 
 	// キーワードが登場する位置を検索
 	let aryKeywords = keywords.trim().split(/\s+/);
 	let hits = [];
 	const normalizedText = normalizeText(text);
-	aryKeywords.forEach((keyword)=>{
+	aryKeywords.every((keyword)=>{
 		const normalizedKeyword = normalizeText(keyword);
 		let start = 0;
 		while(1){
@@ -22,6 +25,7 @@ module.exports = function(text, keywords){
 			start = index + normalizedKeyword.length;
 			continue;
 		}
+		return true;
 	});
 
 	// 先頭から並び替え
@@ -35,16 +39,15 @@ module.exports = function(text, keywords){
 	});
 
 	// ハイライト作成
-	const HIGHTLIGHT_MAX_LENGT = 100;
 	let virtualLength = 0;
 	let returnText = '';
 	let cursor = 0;
-	hits.forEach((hitInfo)=>{
-		if( virtualLength > HIGHTLIGHT_MAX_LENGT ){
-			return;
+	hits.every((hitInfo)=>{
+		if( virtualLength > HIGHLIGHT_MAX_LENGTH ){
+			return false;
 		}
 
-		const textNode = text.substring(cursor, hitInfo.index);
+		const textNode = shortenSideText(text.substring(cursor, hitInfo.index), HIGHLIGHT_SIDE_LENGTH, (returnText.length ? 'center' : 'left'));
 		returnText += htmlspecialchars(textNode);
 		virtualLength += textNode.length;
 		cursor = hitInfo.index;
@@ -53,13 +56,42 @@ module.exports = function(text, keywords){
 		returnText += '<mark>' + htmlspecialchars(highlightNode) + '</mark>';
 		virtualLength += highlightNode.length;
 		cursor = cursor + hitInfo.keyword.length;
+		return true;
 	});
-	if( virtualLength <= HIGHTLIGHT_MAX_LENGT ){
-		const textNode = text.substring(cursor);
+	if( virtualLength <= HIGHLIGHT_MAX_LENGTH ){
+		const textNode = shortenSideText(text.substring(cursor), HIGHLIGHT_SIDE_LENGTH, 'right');
 		returnText += htmlspecialchars(textNode);
 	}
 
 	return returnText;
+}
+
+/**
+ * 前後のテキストを短くする
+ */
+function shortenSideText(text, sideLength, direction){
+	if( direction == 'center' ){
+		if( text.length <= sideLength*2 ){
+			return text;
+		}
+	}else{
+		if( text.length <= sideLength ){
+			return text;
+		}
+	}
+
+	const leftStr = text.substring(0, sideLength);
+	const rightStr = text.substring(text.length - sideLength, text.length);
+
+	if( direction == 'left' ){
+		return '...' + rightStr;
+	}else if( direction == 'right' ){
+		return leftStr + '...';
+	}else if( direction == 'center' ){
+		return leftStr + '...' + rightStr;
+	}
+
+	return text;
 }
 
 /**
