@@ -32,6 +32,7 @@ class main {
 		$this->plugin_conf = (object) $this->plugin_conf;
 		$this->plugin_conf->engine_type = $this->plugin_conf->engine_type ?? 'client';
 		$this->plugin_conf->path_client_assets_dir = $this->plugin_conf->path_client_assets_dir ?? '/common/site_search_index/';
+		$this->plugin_conf->path_private_data_dir = $this->plugin_conf->path_private_data_dir ?? '/_sys/site_search_index/';
 		$this->plugin_conf->contents_area_selector = $this->plugin_conf->contents_area_selector ?? '.contents';
 		$this->plugin_conf->ignored_contents_selector = $this->plugin_conf->ignored_contents_selector ?? array();
 	}
@@ -61,6 +62,8 @@ class main {
         $json_file_list = $this->px->fs()->ls($realpath_plugin_private_cache.'contents/');
 		$realpath_controot = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_realpath_docroot().$this->px->get_path_controot() ) );
 		$realpath_public_base = $realpath_controot.$this->plugin_conf()->path_client_assets_dir.'/';
+		$realpath_homedir = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_realpath_homedir() ) );
+		$realpath_private_data_base = $realpath_homedir.$this->plugin_conf()->path_private_data_dir.'/';
 
 		$this->px->fs()->copy_r(__DIR__.'/../public/assets/', $realpath_public_base.'assets/');
 
@@ -80,17 +83,21 @@ class main {
 
 		// --------------------------------------
 		// initialize TNTSearch
-		$this->px->fs()->copy_r(__DIR__.'/../public/search.php', $realpath_public_base.'search.php');
-		$this->px->fs()->rm($realpath_public_base.'tntsearch/');
-		if( $this->px->fs()->mkdir_r($realpath_public_base.'tntsearch/') ){
+		$searchPhp = $this->px->fs()->read_file(__DIR__.'/../public/search.php');
+		$searchPhp = preg_replace('/\$____path_client_assets_dir____/s', $this->plugin_conf()->path_client_assets_dir, $searchPhp);
+		$searchPhp = preg_replace('/\$____path_private_data_dir____/s', $this->plugin_conf()->path_private_data_dir, $searchPhp);
+		$this->px->fs()->save_file($realpath_public_base.'search.php', $searchPhp);
+
+		$this->px->fs()->rm($realpath_private_data_base.'tntsearch/');
+		if( $this->px->fs()->mkdir_r($realpath_private_data_base.'tntsearch/') ){
 			// TNT Search データディレクトリを初期化する
-			touch($realpath_public_base.'tntsearch/articles.sqlite');
+			touch($realpath_private_data_base.'tntsearch/articles.sqlite');
 
 			// NOTE: TNT Search はデータベースからコンテンツを取得してインデックスを作成する。
 			// 本作ではデータベースにコンテンツは格納しないので本来必要ないが、
 			// データベースがないとエラーが起きるので、ダミーだが作成している。
 			$pdo = new \PDO(
-				'sqlite'.':'.$realpath_public_base.'tntsearch/articles.sqlite',
+				'sqlite'.':'.$realpath_private_data_base.'tntsearch/articles.sqlite',
 			);
 			$sql = 'CREATE TABLE articles (
 				id VARCHAR(255) NOT NULL,
@@ -104,8 +111,8 @@ class main {
 		$tnt = new TNTSearch;
 		$tnt->loadConfig([
 			'driver'    => 'sqlite',
-			'database'  => $realpath_public_base.'tntsearch/articles.sqlite',
-			'storage'   => $realpath_public_base.'tntsearch/',
+			'database'  => $realpath_private_data_base.'tntsearch/articles.sqlite',
+			'storage'   => $realpath_private_data_base.'tntsearch/',
 			'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
 		]);
 		$indexer = $tnt->createIndex('index.sqlite');

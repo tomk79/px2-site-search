@@ -3,15 +3,17 @@
 $query = $paprika->req()->get_param('q');
 
 $realpath_controot = $paprika->fs()->get_realpath( $paprika->env()->realpath_controot );
-$realpath_public_base = $realpath_controot.'common/site_search_index/';
+$realpath_public_base = $paprika->fs()->get_realpath( $realpath_controot.'/common/site_search_index/' );
+$realpath_homedir = $paprika->fs()->get_realpath( $paprika->env()->realpath_homedir );
+$realpath_private_data_base = $paprika->fs()->get_realpath( $realpath_homedir.'../'.'/_sys/site_search_index/' );
 
 // --------------------------------------
 // 検索する
 $tnt = new \TeamTNT\TNTSearch\TNTSearch;
 $tnt->loadConfig([
 	'driver'    => 'sqlite',
-	'database'  => $realpath_public_base.'tntsearch/articles.sqlite',
-	'storage'   => $realpath_public_base.'tntsearch/',
+	'database'  => $realpath_private_data_base.'tntsearch/articles.sqlite',
+	'storage'   => $realpath_private_data_base.'tntsearch/',
 	'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
 ]);
 $tnt->selectIndex("index.sqlite");

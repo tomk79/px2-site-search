@@ -204,6 +204,10 @@ return call_user_func( function(){
 			// 省略時: '/common/site_search_index/'
 			'path_client_assets_dir' => '/common/site_search_index/',
 
+			// 非公開データの書き出し先ディレクトリ
+			// 省略時: '/_sys/site_search_index/'
+			'path_private_data_dir' => '/_sys/site_search_index/',
+
 			// コンテンツエリアを抽出するセレクタ
 			// 省略時: '.contents'
 			'contents_area_selector' => '.contents',

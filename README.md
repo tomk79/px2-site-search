@@ -26,6 +26,10 @@ $conf->funcs->before_content = array(
         // 省略時: '/common/site_search_index/'
         'path_client_assets_dir' => '/common/site_search_index/',
 
+        // 非公開データの書き出し先ディレクトリ
+        // 省略時: '/_sys/site_search_index/'
+        'path_private_data_dir' => '/_sys/site_search_index/',
+
         // コンテンツエリアを抽出するセレクタ
         // 省略時: '.contents'
         'contents_area_selector' => '.contents',
@@ -113,6 +117,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 - サーバーサイドで検索を実行できるようになった。
 - `engine_type` オプションを追加した。
+- `path_private_data_dir` オプションを追加した。
 - `data-path-controot` オプションを省略できるようになった。
 - `data-lang` オプションを追加。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
