@@ -38,6 +38,9 @@ module.exports = function(main){
 		$targetDiv.find('#px2-site-search__search-form')
 			.on('submit', function(e){
 				const strKeywords = $(this).find('input[name=q]').val();
+				if(window.px2style){
+					window.px2style.loading();
+				}
 				main.search(strKeywords, function(results, documentList){
 					const $resultsDiv = $targetDiv.find(`.px2-site-search__result`);
 					$resultsDiv.html("");
@@ -56,6 +59,10 @@ module.exports = function(main){
 							list.appendChild(listItem);
 						});
 						$resultsDiv.append(list);
+					}
+
+					if(window.px2style){
+						window.px2style.closeLoading();
 					}
 				});
 			});
