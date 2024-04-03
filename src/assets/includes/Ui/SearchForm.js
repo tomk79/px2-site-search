@@ -51,9 +51,10 @@ module.exports = function(main){
 						const list = document.createElement("ul");
 						results.forEach((result) => {
 							const listItem = document.createElement("li");
+							let title = HighlightText(documentList.contents[result.id].t, strKeywords, {maxLength: 120, sideLength: 120});
 							let content = HighlightText(documentList.contents[result.id].c, strKeywords);
 							listItem.innerHTML = `
-								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].h}">${documentList.contents[result.id].t}</a></p>
+								<p class="px2-site-search__result-title"><a href="${href_prefix}${documentList.contents[result.id].h}">${title}</a></p>
 								<p class="px2-site-search__result-summary">${content}</p>
 							`;
 							list.appendChild(listItem);
