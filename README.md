@@ -19,6 +19,8 @@ $conf->funcs->before_content = array(
     // PX=site_search
     picklesFramework2\px2SiteSearch\register::before_content(array(
         // 検索エンジンの種類
+        // - 'client' = ブラウザ上で静的に動作する検索インデックス
+        // - 'paprika' = Paprikaフレームワークを用いてサーバー上で動作する検索インデックス
         // 省略時: 'client'
         'engine_type' => 'client',
 
@@ -29,6 +31,14 @@ $conf->funcs->before_content = array(
         // 非公開データの書き出し先ディレクトリ
         // 省略時: '/_sys/site_search_index/'
         'path_private_data_dir' => '/_sys/site_search_index/',
+
+        // インデックスから除外するパス
+        // 複数のパス(完全一致)、または正規表現で定義します。
+        // 省略時: 除外しない
+        'ignored_path' => array(
+            '/perfect_match_ignored/ignored.html', // 完全一致 による設定例
+            '/^\/ignored\/.*$/i', // 正規表現による設定例
+        ),
 
         // コンテンツエリアを抽出するセレクタ
         // 省略時: 'body'
@@ -117,11 +127,12 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 - サーバーサイドで検索を実行できるようになった。
 - `engine_type` オプションを追加した。
+- `ignored_path` オプションを追加した。
+- `contents_area_selector` オプションのデフォルト値を `body` に変更した。
 - `path_private_data_dir` オプションを追加した。
 - `data-path-controot` オプションを省略できるようになった。
 - `data-lang` オプションを追加。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
-- `contents_area_selector` オプションのデフォルト値を `body` に変更した。
 - `X-PXFW-RELATEDLINK` によって追加された新しいパスが、キュー配列の先頭に追加されるようになった。
 
 ### tomk79/px2-site-search v0.1.0 (2024年3月20日)

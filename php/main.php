@@ -33,6 +33,7 @@ class main {
 		$this->plugin_conf->engine_type = $this->plugin_conf->engine_type ?? 'client';
 		$this->plugin_conf->path_client_assets_dir = $this->plugin_conf->path_client_assets_dir ?? '/common/site_search_index/';
 		$this->plugin_conf->path_private_data_dir = $this->plugin_conf->path_private_data_dir ?? '/_sys/site_search_index/';
+		$this->plugin_conf->ignored_path = $this->plugin_conf->ignored_path ?? array();
 		$this->plugin_conf->contents_area_selector = $this->plugin_conf->contents_area_selector ?? 'body';
 		$this->plugin_conf->ignored_contents_selector = $this->plugin_conf->ignored_contents_selector ?? array();
 	}

@@ -6,3 +6,7 @@
 "/basic/php_preview.html",,,"3. プレビュー環境で動的に実行する",,,,,"/basic/index.html","1",,,,,,,
 "/showcase/index.html",,,"ショーケース",,,,,,"1",,,,,"1",,
 "/showcase/extphp/index.html",,,"PHPを拡張子で適用する",,,,,"/showcase/index.html","1",,,,,"1",,
+"/ignored/index.html",,,"除外されるべきコンテンツ",,,,,,"1",,,,,"1",,
+"/ignored/this_is_ignored_too/ignored.html",,,"除外の範囲内",,,,,"/ignored/index.html","1",,,,,,,
+"/ignored/this_is_perfect_match_ignored/ignored.html",,,"完全一致で除外されたパス",,,,,"/ignored/index.html","1",,,,,,,
+"/ignored/this_is_not_ignored/included.html",,,"除外されないコンテンツ",,,,,"/ignored/index.html","1",,,,,,,

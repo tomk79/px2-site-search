@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<title>PHPを拡張子で適用する | px2-site-search</title>
+		<title>完全一致で除外されたパス | px2-site-search</title>
 		<meta name="description" content="" />
 		<meta name="keywords" content="" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,8 +34,8 @@
 
 		<div class="theme-header__globalnavi"><ul>
 <li><a href="/basic/">基本</a></li>
-<li><a href="/showcase/" class="current">ショーケース</a></li>
-<li><a href="/ignored/">除外されるべきコンテンツ</a></li>
+<li><a href="/showcase/">ショーケース</a></li>
+<li><a href="/ignored/" class="current">除外されるべきコンテンツ</a></li>
 </ul>
 </div>
 	</div>
@@ -43,16 +43,21 @@
 <div class="theme-layouts theme-layouts--rnavi">
 	<div class="theme-layouts__body">
 		<div class="theme-layouts__content">
-<div class="theme-breadcrumb"><ul><li><a href="/">HOME</a></li><li><a href="/showcase/">ショーケース</a></li><li><span>PHPを拡張子で適用する</span></li></ul></div>
-<h1>PHPを拡張子で適用する</h1>
+<div class="theme-breadcrumb"><ul><li><a href="/">HOME</a></li><li><a href="/ignored/">除外されるべきコンテンツ</a></li><li><span>完全一致で除外されたパス</span></li></ul></div>
+<h1>完全一致で除外されたパス</h1>
 
 <div class="contents">
-{$main}</div>
+<p>404 - File not found.</p></div>
 		</div>
 		<div class="theme-layouts__rnavi">
 			<div class="theme-layouts__rnavi-inner">
 <nav class="theme-common-navi">
-	<p><a href="/showcase/extphp/">PHPを拡張子で適用する</a></p>
+	<p><a href="/ignored/">除外されるべきコンテンツ</a></p>
+<ul>
+<li><a href="/ignored/this_is_ignored_too/ignored.html">除外の範囲内</a></li>
+<li><a href="/ignored/this_is_perfect_match_ignored/ignored.html" class="current">完全一致で除外されたパス</a></li>
+<li><a href="/ignored/this_is_not_ignored/included.html">除外されないコンテンツ</a></li>
+</ul>
 </nav>
 			</div>
 		</div>
@@ -64,7 +69,7 @@
 <div class="theme-back-to-pagetop">
 	<p><a href="#pagetop">このページの先頭へ戻る</a></p>
 </div>
-<div class="theme-breadcrumb"><ul><li><a href="/">HOME</a></li><li><a href="/showcase/">ショーケース</a></li><li><span>PHPを拡張子で適用する</span></li></ul></div>
+<div class="theme-breadcrumb"><ul><li><a href="/">HOME</a></li><li><a href="/ignored/">除外されるべきコンテンツ</a></li><li><span>完全一致で除外されたパス</span></li></ul></div>
 		</div>
 		<div class="theme-layouts__rnavi">
 			<div class="theme-layouts__rnavi-inner">
@@ -82,13 +87,13 @@
 <li><a href="/basic/php_preview.html">3. プレビュー環境で動的に実行する</a></li>
 </ul>
 </li>
-<li><a href="/showcase/" class="current">ショーケース</a><ul>
-<li><a href="/showcase/extphp/" class="current">PHPを拡張子で適用する</a></li>
+<li><a href="/showcase/">ショーケース</a><ul>
+<li><a href="/showcase/extphp/">PHPを拡張子で適用する</a></li>
 </ul>
 </li>
-<li><a href="/ignored/">除外されるべきコンテンツ</a><ul>
+<li><a href="/ignored/" class="current">除外されるべきコンテンツ</a><ul>
 <li><a href="/ignored/this_is_ignored_too/ignored.html">除外の範囲内</a></li>
-<li><a href="/ignored/this_is_perfect_match_ignored/ignored.html">完全一致で除外されたパス</a></li>
+<li><a href="/ignored/this_is_perfect_match_ignored/ignored.html" class="current">完全一致で除外されたパス</a></li>
 <li><a href="/ignored/this_is_not_ignored/included.html">除外されないコンテンツ</a></li>
 </ul>
 </li>
@@ -122,13 +127,13 @@
 <li><a href="/basic/php_preview.html">3. プレビュー環境で動的に実行する</a></li>
 </ul>
 </li>
-<li><a href="/showcase/" class="current">ショーケース</a><ul>
-<li><a href="/showcase/extphp/" class="current">PHPを拡張子で適用する</a></li>
+<li><a href="/showcase/">ショーケース</a><ul>
+<li><a href="/showcase/extphp/">PHPを拡張子で適用する</a></li>
 </ul>
 </li>
-<li><a href="/ignored/">除外されるべきコンテンツ</a><ul>
+<li><a href="/ignored/" class="current">除外されるべきコンテンツ</a><ul>
 <li><a href="/ignored/this_is_ignored_too/ignored.html">除外の範囲内</a></li>
-<li><a href="/ignored/this_is_perfect_match_ignored/ignored.html">完全一致で除外されたパス</a></li>
+<li><a href="/ignored/this_is_perfect_match_ignored/ignored.html" class="current">完全一致で除外されたパス</a></li>
 <li><a href="/ignored/this_is_not_ignored/included.html">除外されないコンテンツ</a></li>
 </ul>
 </li>

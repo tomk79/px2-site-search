@@ -356,7 +356,11 @@ class create_index {
 
 				$path_type = $this->px->get_path_type( $path );
 				$path_ext = strtolower( preg_replace('/^.*?([a-zA-Z0-9\_\-]+)$/', '$1', $path_rewrited??'') );
-				if( !preg_match('/^(?:html?|php)$/', $path_ext) ){
+				if( $this->is_ignored_path($path) ){
+					// 除外されたパスはスキップ
+					print ' -> Ignored path.'."\n";
+
+				}elseif( !preg_match('/^(?:html?|php)$/', $path_ext) ){
 					// HTMLドキュメント以外はスキップ
 					print ' -> Non HTML file.'."\n";
 
@@ -1150,7 +1154,39 @@ class create_index {
 	}
 
 	/**
+	 * 除外されたパスか調べる
+	 * @param string $path 検査対象のパス
+	 * @return boolean 除外されていたら true, 除外されていない場合は false
+	 */
+	private function is_ignored_path( $path ){
+		$ignored_path = $this->main->plugin_conf()->ignored_path;
+		if( !is_array($ignored_path) ){
+			return false;
+		}
+		foreach($ignored_path as $pattern){
+			// 完全一致による設定を評価
+			if( $pattern == $path ){
+				return true;
+			}
+
+			// 正規表現による設定を評価
+			$is_pattern_regexp = false;
+			if( preg_match('/^(.).*\1[imsxADSUXJun]*$/', $pattern) ){
+				// 正規表現パターンとして妥当かどうかを判定する
+				$is_pattern_regexp = true;
+			}
+			if( $is_pattern_regexp && preg_match($pattern, $path) ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * HTMLをパースする
+	 *
+	 * @param string $src HTMLコード
+	 * @return object $html Simple HTML DOM オブジェクト
 	 */
 	private function parse_html( $src ){
 		$html = \picklesFramework2\px2SiteSearch\str_get_html(
