@@ -1171,7 +1171,11 @@ class create_index {
 
 			// 正規表現による設定を評価
 			$is_pattern_regexp = false;
-			if( preg_match('/^(.).*\1[imsxADSUXJun]*$/', $pattern) ){
+			if( preg_match('/^([^a-zA-Z\(\)\{\}\[\]\<\>\\\\]).*\1[imsxADSUXJun]*$/', $pattern)
+				|| preg_match('/^\(.*\)[imsxADSUXJun]*$/', $pattern)
+				|| preg_match('/^\{.*\}[imsxADSUXJun]*$/', $pattern)
+				|| preg_match('/^\[.*\][imsxADSUXJun]*$/', $pattern)
+				|| preg_match('/^\<.*\>[imsxADSUXJun]*$/', $pattern) ){
 				// 正規表現パターンとして妥当かどうかを判定する
 				$is_pattern_regexp = true;
 			}
