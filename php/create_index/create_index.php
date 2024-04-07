@@ -2,14 +2,14 @@
 /**
  * px2-site-search
  */
-namespace picklesFramework2\px2SiteSearch\createIndex;
+namespace picklesFramework2\px2SiteSearch\create_index;
 use picklesFramework2\px2SiteSearch\plugins;
 use picklesFramework2\px2SiteSearch\main;
 
 /**
  * PX Commands "site_search.create_index"
  */
-class createIndex {
+class create_index {
 
 	/** mainオブジェクト */
 	private $main;

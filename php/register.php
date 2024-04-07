@@ -23,8 +23,8 @@ class register {
 		$px->pxcmd()->register('site_search', function($px) use ($conf){
 			$pxcmd = $px->get_px_command();
 			if( ($pxcmd[1] ?? null) == 'create_index' ){
-				$createIndex = new main($px, $conf);
-				$createIndex->createIndex();
+				$create_index = new main($px, $conf);
+				$create_index->create_index();
 			}
 			exit();
 		});

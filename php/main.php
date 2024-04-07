@@ -48,9 +48,9 @@ class main {
 	/**
 	 * インデックスファイルを生成する
 	 */
-	public function createIndex(){
-		$createIndex = new createIndex\createIndex($this);
-		return $createIndex->execute();
+	public function create_index(){
+		$create_index = new create_index\create_index($this);
+		return $create_index->execute();
 	}
 
     /**
@@ -118,7 +118,7 @@ class main {
 				'storage'   => $realpath_private_data_base.'tntsearch/',
 				'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
 			]);
-			$indexer = $tnt->createIndex('index.sqlite');
+			$indexer = $tnt->create_index('index.sqlite');
 			$tnt->selectIndex("index.sqlite");
 			$index = $tnt->getIndex();
 		}

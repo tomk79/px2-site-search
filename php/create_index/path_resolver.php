@@ -2,7 +2,7 @@
 /**
  * px2-site-search
  */
-namespace picklesFramework2\px2SiteSearch\createIndex;
+namespace picklesFramework2\px2SiteSearch\create_index;
 
 /**
  * PX Commands "publish" path resolver
