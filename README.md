@@ -121,6 +121,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 - `data-path-controot` オプションを省略できるようになった。
 - `data-lang` オプションを追加。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
+- `X-PXFW-RELATEDLINK` によって追加された新しいパスが、キュー配列の先頭に追加されるようになった。
 
 ### tomk79/px2-site-search v0.1.0 (2024年3月20日)
 

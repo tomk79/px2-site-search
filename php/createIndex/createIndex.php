@@ -53,8 +53,11 @@ class createIndex {
 	/** 処理待ちのパス一覧 */
 	private $paths_queue = array();
 
-	/** 処理済みのパス一覧 */
-	private $paths_done = array();
+	/** パスの状態一覧 */
+	private $paths_status = array();
+
+	/** 処理済みのパス数 */
+	private $done_count = 0;
 
 	/** Extension をマッチさせる正規表現 */
 	private $preg_exts;
@@ -242,7 +245,7 @@ class createIndex {
 	 */
 	private function cli_report(){
 		$cnt_queue = count( $this->paths_queue );
-		$cnt_done = count( $this->paths_done );
+		$cnt_done = $this->done_count;
 		ob_start();
 		print $cnt_done.'/'.($cnt_queue+$cnt_done)."\n";
 		print 'queue: '.$cnt_queue.' / done: '.$cnt_done."\n";
@@ -296,6 +299,7 @@ class createIndex {
 		foreach( $this->get_region_root_path() as $path_region ){
 			$this->make_list_by_dir_scan( $path_region );
 		}
+		$this->paths_queue = array_reverse($this->paths_queue);
 		print "\n";
 		print '============'."\n";
 		print '## Start publishing'."\n";
@@ -333,7 +337,8 @@ class createIndex {
 			if( !count( $this->paths_queue ) ){
 				break;
 			}
-			foreach( $this->paths_queue as $path=>$val ){break;}
+			$path = array_shift($this->paths_queue);
+
 			print '------------'."\n";
 			print $path."\n";
 
@@ -358,7 +363,7 @@ class createIndex {
 				}elseif( $path_type != 'normal' && $path_type !== false ){
 					// 物理ファイルではないものはスキップ
 					print ' -> Non file URL.'."\n";
-
+	
 				}elseif( $this->px->fs()->is_dir(dirname($_SERVER['SCRIPT_FILENAME']).$path) ){
 					// ディレクトリを処理
 					$this->px->fs()->mkdir( $this->path_tmp_publish.'/htdocs'.$htdocs_sufix.$this->path_controot.$path_rewrited );
@@ -450,7 +455,7 @@ class createIndex {
 							$json->content = base64_decode( $bin->body_base64 ?? null );
 							$this->save_content_json($json);
 
-
+							$bin->relatedlinks = array_reverse($bin->relatedlinks);
 							foreach( $bin->relatedlinks as $link ){
 								$link = $this->px->fs()->get_realpath( $link, dirname($this->path_controot.$path).'/' );
 								$link = $this->px->fs()->normalize_path( $link );
@@ -488,13 +493,12 @@ class createIndex {
 						$device_info->user_agent,
 						microtime(true)-$microtime
 					));
-
 				}
 
-			} // multi device
+			}
 
-			unset($this->paths_queue[$path]);
-			$this->paths_done[$path] = true;
+			$this->paths_status[$path] = true;
+			$this->done_count ++;
 			print $this->cli_report();
 
 			$this->touch_lockfile();
@@ -528,7 +532,6 @@ class createIndex {
 			$counter = 0;
 			foreach( $alert_log as $key=>$row ){
 				$counter ++;
-				// var_dump($row);
 				$tmp_number = '  ['.($key+1).'] ';
 				print $tmp_number;
 				print preg_replace('/(\r\n|\r|\n)/s', '$1'.str_pad('', strlen($tmp_number ?? ""), ' '), $row[2])."\n";
@@ -551,7 +554,7 @@ class createIndex {
 		file_put_contents($this->path_tmp_publish.'timelog.txt', 'Total Time: '.($end_time - $total_time).' sec'."\n", FILE_APPEND); // 2020-04-01 @tomk79 記録するようにした。
 		print "\n";
 
-		$this->unlock();//ロック解除
+		$this->unlock();
 
 		print $this->cli_footer();
 		exit;
@@ -704,7 +707,6 @@ class createIndex {
 			if( strrpos($row, '/*') !== strlen($row)-2 ){
 				continue;
 			}
-			// var_dump($row);
 			$preg_pattern = preg_quote($this->px->fs()->normalize_path($this->px->fs()->get_realpath($row)), '/');
 			$realpath_controot = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $this->px->get_path_docroot().$this->px->get_path_controot() ) );
 			if( preg_match('/\*/',$preg_pattern) ){
@@ -717,9 +719,7 @@ class createIndex {
 				$preg_pattern = preg_quote($this->px->fs()->normalize_path($this->px->fs()->get_realpath($row)),'/');
 			}
 			$path_child = $this->px->fs()->normalize_path( $this->px->fs()->get_realpath( $path ).'/' );
-			// var_dump($preg_pattern);
 			if( preg_match( '/^'.$preg_pattern.'$/s' , $path_child ) ){
-				// var_dump($path_child);
 				return true;
 			}
 		}
@@ -761,15 +761,12 @@ class createIndex {
 			if($dirname != '/'){ $this->add_queue( $dirname ); }
 			return false;
 		}
-		if( array_key_exists($path, $this->paths_queue) ){
+		if( array_key_exists($path, $this->paths_status) ){
 			// 登録済み
 			return false;
 		}
-		if( array_key_exists($path, $this->paths_done) ){
-			// 処理済み
-			return false;
-		}
-		$this->paths_queue[$path] = true;
+		array_unshift($this->paths_queue, $path);
+		$this->paths_status[$path] = false;
 		print 'added queue - "'.$path.'"'."\n";
 		return true;
 	}
@@ -882,7 +879,6 @@ class createIndex {
 			// while( !$this->px->fs()->is_dir('./'.$path) ){
 			// 	$path = $this->px->fs()->normalize_path(dirname($path).'/');
 			// }
-			// var_dump($path);
 			array_push($rtn, $path);
 		}
 		return $rtn;
