@@ -1159,11 +1159,11 @@ class create_index {
 	 * @return boolean 除外されていたら true, 除外されていない場合は false
 	 */
 	private function is_ignored_path( $path ){
-		$ignored_path = $this->main->plugin_conf()->ignored_path;
-		if( !is_array($ignored_path) ){
+		$paths_ignore = $this->main->plugin_conf()->paths_ignore;
+		if( !is_array($paths_ignore) ){
 			return false;
 		}
-		foreach($ignored_path as $pattern){
+		foreach($paths_ignore as $pattern){
 			// 完全一致による設定を評価
 			if( $pattern == $path ){
 				return true;

@@ -35,7 +35,7 @@ $conf->funcs->before_content = array(
         // インデックスから除外するパス
         // 複数のパス(完全一致)、または正規表現で定義します。
         // 省略時: 除外しない
-        'ignored_path' => array(
+        'paths_ignore' => array(
             '/perfect_match_ignored/ignored.html', // 完全一致 による設定例
             '/^\/ignored\/.*$/i', // 正規表現による設定例
         ),
@@ -127,7 +127,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 - サーバーサイドで検索を実行できるようになった。
 - `engine_type` オプションを追加した。
-- `ignored_path` オプションを追加した。
+- `paths_ignore` オプションを追加した。
 - `contents_area_selector` オプションのデフォルト値を `body` に変更した。
 - `path_private_data_dir` オプションを追加した。
 - `data-path-controot` オプションを省略できるようになった。

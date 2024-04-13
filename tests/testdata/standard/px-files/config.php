@@ -211,7 +211,7 @@ return call_user_func( function(){
 			// インデックスから除外するパス
 			// 複数のパス(完全一致)、または正規表現で定義します。
 			// 省略時: 除外しない
-			'ignored_path' => array(
+			'paths_ignore' => array(
 				'/ignored/this_is_perfect_match_ignored/ignored.html', // 完全一致 による設定
 				'/^\/ignored\/(?:this_is_ignored_too\/ignored\.html|index\.html)$/i', // 正規表現による設定
 			),
