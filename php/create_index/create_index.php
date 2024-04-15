@@ -1057,9 +1057,7 @@ class create_index {
 		// HTMLをパース
 		$html = $this->parse_html( $json->content );
 		if($html === false){
-			$json->content = strip_tags($json->content);
-			$json->content = preg_replace('/[ \t\r\n]+/', " ", $json->content);
-			$json->content = trim($json->content);
+			$json->content = $this->html2text($json->content);
 		}else{
 
 			// h1を抽出
@@ -1067,12 +1065,12 @@ class create_index {
 				$headding_array = array();
 				$ret = $html->find('h1');
 				foreach( $ret as $retRow ){
-					array_push($headding_array, trim(strip_tags($retRow->innertext)));
+					array_push($headding_array, $this->html2text($retRow->innertext));
 				}
 				if( !count($headding_array) ){
 					$ret = $html->find('title');
 					foreach( $ret as $retRow ){
-						array_push($headding_array, trim(strip_tags($retRow->innertext)));
+						array_push($headding_array, $this->html2text($retRow->innertext));
 					}
 				}
 				$json->title = implode(' ', $headding_array);
@@ -1121,29 +1119,26 @@ class create_index {
 			$ret = $html->find('h2');
 			$headding_array = array();
 			foreach( $ret as $retRow ){
-				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+				array_push($headding_array, $this->html2text($retRow->innertext));
 			}
 			$json->h2 = implode(' ', $headding_array);
 
 			$ret = $html->find('h3');
 			$headding_array = array();
 			foreach( $ret as $retRow ){
-				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+				array_push($headding_array, $this->html2text($retRow->innertext));
 			}
 			$json->h3 = implode(' ', $headding_array);
 
 			$ret = $html->find('h4');
 			$headding_array = array();
 			foreach( $ret as $retRow ){
-				array_push($headding_array, trim(strip_tags($retRow->innertext)));
+				array_push($headding_array, $this->html2text($retRow->innertext));
 			}
 			$json->h4 = implode(' ', $headding_array);
 
 			// 検索用にコンテンツを整形
-			$json->content = $html->outertext;
-			$json->content = strip_tags($json->content);
-			$json->content = preg_replace('/[ \t\r\n]+/', " ", $json->content);
-			$json->content = trim($json->content);
+			$json->content = $this->html2text($html->outertext);
 		}
 
 		if(!strlen($json->content ?? '')){
@@ -1151,6 +1146,20 @@ class create_index {
 		}
 
 		$this->px->fs()->save_file($realpath_plugin_files.'contents/'.urlencode($json->href).'.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+	}
+
+
+	/**
+	 * 検索対象のHTMLをプレーンテキストに変換する
+	 * @param string $html 検索対象のHTMLコード
+	 * @return string 変換されたプレーンテキスト
+	 */
+	private function html2text($html){
+		$html = strip_tags($html);
+		$text = htmlspecialchars_decode($html);
+		$text = preg_replace('/[ \t\r\n]+/', " ", $text);
+		$text = trim($text);
+		return $text;
 	}
 
 	/**

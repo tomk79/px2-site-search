@@ -134,6 +134,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 - `data-lang` オプションを追加。
 - `data-allow-client-cache` オプションを省略できない不具合を修正。
 - `X-PXFW-RELATEDLINK` によって追加された新しいパスが、キュー配列の先頭に追加されるようになった。
+- 検索対象文字列中のHTML特殊文字の取り扱いに関する不具合を修正した。
 
 ### tomk79/px2-site-search v0.1.0 (2024年3月20日)
 
