@@ -123,7 +123,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 ## 変更履歴 - Change Log
 
-### tomk79/px2-site-search v0.1.1 (リリース日未定)
+### tomk79/px2-site-search v0.2.0 (2024年4月30日)
 
 - サーバーサイドで検索を実行できるようになった。
 - `engine_type` オプションを追加した。
