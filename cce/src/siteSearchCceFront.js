@@ -6,23 +6,29 @@ window.siteSearchCceFront = function(cceAgent){
 		<p><button type="button" class="px2-btn px2-btn--primary cont-btn-create-index">インデックスを更新</button></p>
 	`;
 
-	$elm.querySelector('button')
+	$elm.querySelector('button.cont-btn-create-index')
 		.addEventListener('click', function(){
 			const elm = this;
 			px2style.loading();
 			elm.setAttribute('disabled', true);
 
-			cceAgent.gpi({
-				'command': 'create_index'
-			}, function(res){
-				console.log('---- res:', res);
-				if(res.result){
-					alert('インデックスを更新しました。');
-				}else{
-					alert('[ERROR] インデックスの更新に失敗しました。');
-				}
-				px2style.closeLoading();
-				elm.removeAttribute('disabled');
-			});
+			cceAgent.pxCmd('/?PX=site_search.create_index',
+				{
+				},
+				{
+					"progress": function(data, error){
+						console.log('--- progress:', data, error);
+					}
+				},
+				function(pxCmdStdOut, error){
+					console.log('---- pxCmdStdOut:', pxCmdStdOut, error);
+					if(!error){
+						alert('インデックスを更新しました。');
+					}else{
+						alert('[ERROR] インデックスの更新に失敗しました。');
+					}
+					px2style.closeLoading();
+					elm.removeAttribute('disabled');
+				});
 		});
 }
