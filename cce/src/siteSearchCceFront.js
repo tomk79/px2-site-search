@@ -14,6 +14,7 @@ window.siteSearchCceFront = function(cceAgent){
 
 			cceAgent.pxCmd('/?PX=site_search.create_index',
 				{
+					"timeout": 0,
 					"progress": function(data, error){
 						console.log('--- progress:', data, error);
 					}
