@@ -23,11 +23,12 @@ module.exports = function(main){
 		}
 
 		const $body = $('<div>');
+		main.createSearchForm($body);
 		px2style.modal({
 			"title": words.title,
 			"body": $body,
 			"buttons": [],
 		});
-		main.createSearchForm($body);
+		$body.find('[name=q]').trigger('focus');
 	}
 }
