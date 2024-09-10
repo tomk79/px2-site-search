@@ -123,7 +123,7 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 ## 変更履歴 - Change Log
 
-### tomk79/px2-site-search v0.2.2 (リリース日未定)
+### tomk79/px2-site-search v0.2.2 (2024年9月10日)
 
 - 検索ダイアログのUI改善。
 
