@@ -257,7 +257,9 @@ class create_index {
 	 */
 	public function execute(){
 		$px = $this->px;
-		header('Content-type: text/plain;');
+		if (!headers_sent()) {
+			header('Content-type: text/plain;');
+		}
 		$total_time = time();
 		print $this->cli_header();
 

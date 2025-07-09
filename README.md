@@ -123,6 +123,10 @@ $conf->plugins->px2dt->custom_console_extensions = array(
 
 ## 変更履歴 - Change Log
 
+### tomk79/px2-site-search v0.3.0 (リリース日未定)
+
+- パブリッシュ実行時に、前処理として、自動的にインデックスを生成するようになった。
+
 ### tomk79/px2-site-search v0.2.2 (2024年9月10日)
 
 - 検索ダイアログのUI改善。
